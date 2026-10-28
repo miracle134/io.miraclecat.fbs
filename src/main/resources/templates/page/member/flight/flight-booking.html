@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/layouts/member/default-layout}">
+<!--      layout:decorator="layouts/default">-->
+
+<!-- 페이지의 개별적인 head css, script-->
+<!--/*@thymesVar id="buildStamp" type=""*/-->
+<th:block layout:fragment="headScript">
+    <link rel="stylesheet" th:href="@{/css/member/seat-select.css(t=${buildStamp})}"/>
+    <script src="https://js.tosspayments.com/v2/standard"></script>
+    <script th:inline="javascript">
+        window.bookingNo= /*[[${bookingNo}]]*/ [];
+        window.tossClientKey = /*[[${tossClientKey}]]*/ '';
+    </script>
+</th:block>
+
+<!-- 페이지의 개별적인 css, script -->
+<!--/*@thymesVar id="manifest" type=""*/-->
+<!--/*@thymesVar id="assetHost" type=""*/-->
+<th:block layout:fragment="bodyScript">
+    <th:block th:with="ep=${(manifest['entrypoints'] != null ? manifest['entrypoints']['member/flight/flight-booking'] : null)}">
+        <th:block th:if="${ ep != null }">
+            <th:block th:each="src : ${ ep }">
+                <script type="module" th:src="${ assetHost + src }"></script>
+            </th:block>
+        </th:block>
+    </th:block>
+</th:block>
+
+<!-- 페이지의 개별적인 dialog -->
+<th:block layout:fragment="bodyDialog">
+    <th:block th:replace="~{/fragments/member/dialog/seat-select :: seatSelectDialog}"></th:block>
+</th:block>
+
+<!-- 페이지 content -->
+<th:block layout:fragment="content">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="container text-center">
+            <h1 class="display-5 fw-bold mb-2">
+                <i class="bi bi-ticket-detailed-fill"></i> 항공권 예약
+            </h1>
+            <p class="lead mb-0">승객 정보를 입력하고 예약을 완료하세요</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container my-4">
+        <div class="row">
+            <!-- Left: Passenger Form -->
+            <div class="col-lg-8 mb-4">
+                <!-- Flight Info Card -->
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-airplane me-2"></i>선택한 항공편</h5>
+                        <span class="badge bg-light text-primary fs-6" id="bookingTimer" title="예약 가능 남은 시간">
+                            <i class="bi bi-clock me-1"></i><span id="bookingTimerText">--:--</span>
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-2 text-center mb-3 mb-md-0">
+                                <img id="logoUrl" src="" alt="" class="img-fluid mb-2" style="max-width: 60px;">
+                                <div id="airlineNameKo" class="small text-muted"></div>
+                                <div id="flightNumber" class="small fw-bold"></div>
+                            </div>
+                            <div class="col-md-7">
+                                <div class="row align-items-center">
+                                    <div class="col-4 text-center">
+                                        <div class="fs-4 fw-bold" id="departureTime">-</div>
+                                        <div class="text-muted" id="departureAirport">-</div>
+                                        <div class="small text-muted" id="departureDate">-</div>
+                                    </div>
+                                    <div class="col-4 text-center">
+                                        <i class="bi bi-arrow-right fs-3 text-primary"></i>
+                                        <div class="small text-muted" id="durationMinutes">-</div>
+                                    </div>
+                                    <div class="col-4 text-center">
+                                        <div class="fs-4 fw-bold" id="arrivalTime">-</div>
+                                        <div class="text-muted" id="arrivalAirport">-</div>
+                                        <div class="small text-muted" id="arrivalDate">-</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <div class="text-primary fw-bold fs-4" id="basePrice">-원</div>
+                                <div class="small text-muted">1인당</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Passenger Info -->
+                <div class="card">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0"><i class="bi bi-person-fill me-2"></i>승객 정보</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="passengerForms">
+                        </div>
+                        <template id="passengerFormTemplate">
+                            <div class="passenger-form border-bottom pb-4 mb-4">
+                                <h6 class="text-primary mb-3">
+                                    <i class="bi bi-person-badge me-2"></i>승객 <span class="passenger-index"></span>
+                                </h6>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-semibold">이름 (한글)</label>
+                                        <input type="text" class="form-control passenger-name"
+                                               placeholder="홍길동" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-semibold">이름 (영문)</label>
+                                        <input type="text" class="form-control passenger-name-en"
+                                               placeholder="HONG GILDONG" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-semibold">생년월일</label>
+                                        <input type="date" class="form-control passenger-birth" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-semibold">성별</label>
+                                        <select class="form-select passenger-gender" required>
+                                            <option value="">선택하세요</option>
+                                            <option value="male">남성</option>
+                                            <option value="female">여성</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-semibold">전화번호</label>
+                                        <input type="text" class="form-control passenger-tel"
+                                               placeholder="010-1234-5678" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-semibold">이메일</label>
+                                        <input type="text" class="form-control passenger-email"
+                                               placeholder="example@email.com" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Special Requests -->
+                <div class="card mt-4">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0"><i class="bi bi-chat-dots me-2"></i>특별 요청사항</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="btnSeatSelect" class="form-label">좌석 선택</label>
+                            <button type="button" class="btn btn-outline-primary w-100" id="btnSeatSelect">
+                                <i class="bi bi-grid-3x3 me-2"></i>
+                                <span>좌석 선택하기</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Price Summary -->
+            <div class="col-lg-4">
+                <div class="card sticky-top" style="top: 100px;">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="bi bi-calculator me-2"></i>결제 금액</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Price Breakdown -->
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>항공권 (성인 <span class="passengerCountText">-</span>명)</span>
+                                <span class="fw-bold" id="perBasePric">-원</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2 text-muted">
+                                <span>발권 수수료 (성인 <span class="passengerCountText">-</span>명)</span>
+                                <span id="feePrice">-원</span>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <!-- Total -->
+                        <div class="d-flex justify-content-between mb-4">
+                            <span class="fs-5 fw-bold">총 결제금액</span>
+                            <span class="fs-4 fw-bold text-primary" id="totalPrice">-원</span>
+                        </div>
+
+                        <!-- Terms -->
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="agreeTerms" required>
+                                <label class="form-check-label small" for="agreeTerms">
+                                    <a href="javascript:void(0);" class="text-decoration-none">운임 규정</a> 및
+                                    <a href="javascript:void(0);" class="text-decoration-none">취소 환불 규정</a>에 동의합니다
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="agreePrivacy" required>
+                                <label class="form-check-label small" for="agreePrivacy">
+                                    <a href="javascript:void(0);" class="text-decoration-none">개인정보 제3자 제공</a>에 동의합니다
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Payment Button -->
+                        <button class="btn btn-primary btn-lg w-100" id="btnPayment">
+                            <i class="bi bi-credit-card me-2"></i>결제하기
+                        </button>
+
+                        <!-- Info -->
+                        <div class="alert alert-info mt-3 mb-0">
+                            <small>
+                                <i class="bi bi-info-circle me-1"></i>
+                                예약 완료 후 이메일로 항공권이 발송됩니다.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</th:block>
+
+</html>

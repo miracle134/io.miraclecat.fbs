@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/layouts/admin/default-layout}">
+
+<!-- 페이지의 개별적인 css, script -->
+<!--/*@thymesVar id="manifest" type=""*/-->
+<!--/*@thymesVar id="assetHost" type=""*/-->
+<th:block layout:fragment="bodyScript">
+    <th:block th:with="ep=${(manifest['entrypoints'] != null ? manifest['entrypoints']['admin/booking/bookings'] : null)}">
+        <th:block th:if="${ ep != null }">
+            <th:block th:each="src : ${ ep }">
+                <script type="module" th:src="${ assetHost + src }"></script>
+            </th:block>
+        </th:block>
+    </th:block>
+</th:block>
+
+<!-- 페이지 dialog -->
+<th:block layout:fragment="bodyDialog">
+    <!-- 예약 상세 -->
+    <div class="pm-modal pm-modal--lg" id="popBookingDetail" aria-hidden="true">
+        <div class="pm-modal__content" role="dialog" aria-modal="true" tabindex="-1">
+            <div class="pm-modal__header" style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: #fff;">
+                <div>
+                    <h5 class="pm-modal__title mb-1" style="color: #fff;">
+                        <i class="bi bi-ticket-detailed-fill me-2"></i><span id="detailBookingNumber"></span>
+                    </h5>
+                    <p class="mb-0" style="opacity: 0.9; font-size: 0.85rem;">
+                        예약 상세 정보 · 예약일시 <span id="detailCreatedAt"></span>
+                    </p>
+                </div>
+                <button type="button" class="pm-modal__close" data-pm-close aria-label="닫기" style="color: #fff;">&times;</button>
+            </div>
+            <div class="pm-modal__body">
+                <!-- 예약자 -->
+                <div style="background: linear-gradient(135deg, #f8f9fa 0%, #ecf0f1 100%); border-radius: 0.5rem; padding: 1rem; margin-bottom: 1rem;">
+                    <h6 class="admin-detail-title"><i class="bi bi-person-fill me-1"></i>예약자 정보</h6>
+                    <div class="row g-2">
+                        <div class="col-4">
+                            <div class="admin-detail-label">예약자명</div>
+                            <div class="admin-detail-value fw-semibold" id="detailMemberName"></div>
+                        </div>
+                        <div class="col-4">
+                            <div class="admin-detail-label">아이디(이메일)</div>
+                            <div class="admin-detail-value" id="detailLoginId"></div>
+                        </div>
+                        <div class="col-4">
+                            <div class="admin-detail-label">연락처</div>
+                            <div class="admin-detail-value" id="detailMemberMobile"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 항공편 -->
+                <div style="background: #fff; border: 2px solid #ecf0f1; border-radius: 0.5rem; padding: 1rem; margin-bottom: 1rem;">
+                    <h6 class="admin-detail-title"><i class="bi bi-airplane-fill me-1"></i>항공편 정보</h6>
+                    <div class="row align-items-center mb-2">
+                        <div class="col-5 text-center">
+                            <div style="font-size: 1.25rem; font-weight: 700; color: #2c3e50;" id="detailDepartureCity"></div>
+                            <div style="font-size: 0.8rem; color: #7f8c8d;" id="detailDepartureTime"></div>
+                        </div>
+                        <div class="col-2 text-center">
+                            <i class="bi bi-arrow-right" style="font-size: 1.25rem; color: #3498db;"></i>
+                            <div style="font-size: 0.7rem; color: #7f8c8d; margin-top: 0.125rem;" id="detailFlightNo"></div>
+                        </div>
+                        <div class="col-5 text-center">
+                            <div style="font-size: 1.25rem; font-weight: 700; color: #2c3e50;" id="detailArrivalCity"></div>
+                            <div style="font-size: 0.8rem; color: #7f8c8d;" id="detailArrivalTime"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="admin-detail-label">출발일</div>
+                            <div class="admin-detail-value" id="detailFlightDate"></div>
+                        </div>
+                        <div class="col-4">
+                            <div class="admin-detail-label">항공사</div>
+                            <div class="admin-detail-value" id="detailAirline"></div>
+                        </div>
+                        <div class="col-4">
+                            <div class="admin-detail-label">탑승 인원</div>
+                            <div class="admin-detail-value"><span id="detailPassengerCount"></span>명</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 탑승객 -->
+                <div style="margin-bottom: 1rem;">
+                    <h6 class="admin-detail-title"><i class="bi bi-people-fill me-1"></i>탑승객</h6>
+                    <div style="overflow-x: auto;">
+                        <table class="admin-table">
+                            <thead>
+                            <tr>
+                                <th>이름</th>
+                                <th>영문 이름</th>
+                                <th>성별</th>
+                                <th>생년월일</th>
+                                <th>연락처</th>
+                                <th>이메일</th>
+                                <th class="text-center">좌석</th>
+                            </tr>
+                            </thead>
+                            <tbody id="detailPassengerBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 결제 -->
+                <div class="row g-2" style="margin-bottom: 1rem;">
+                    <div class="col-md-6">
+                        <div style="background: linear-gradient(135deg, rgba(52, 152, 219, 0.1) 0%, rgba(52, 152, 219, 0.05) 100%); border-radius: 0.5rem; padding: 1rem;">
+                            <h6 class="admin-detail-title"><i class="bi bi-cash-stack me-1"></i>결제 금액</h6>
+                            <div class="d-flex justify-content-between small"><span>항공 운임</span><span id="detailFareAmount"></span></div>
+                            <div class="d-flex justify-content-between small"><span>예약 수수료</span><span id="detailFeeAmount"></span></div>
+                            <div class="d-flex justify-content-between fw-bold mt-2 pt-2" style="border-top: 1px solid #dcdde1;">
+                                <span>총 결제 금액</span><span id="detailTotalAmount" style="color: #3498db;"></span>
+                            </div>
+                            <div class="d-flex justify-content-between small mt-1 d-none" id="detailRefundRow" style="color: #27ae60;">
+                                <span>환불 금액</span><span id="detailRefundAmount"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div style="background: linear-gradient(135deg, rgba(39, 174, 96, 0.1) 0%, rgba(39, 174, 96, 0.05) 100%); border-radius: 0.5rem; padding: 1rem; height: 100%;">
+                            <h6 class="admin-detail-title"><i class="bi bi-info-circle-fill me-1"></i>상태</h6>
+                            <div class="mb-2">
+                                <span class="admin-badge" id="detailStatusBadge" style="font-size: 0.85rem; padding: 0.375rem 0.75rem;"></span>
+                            </div>
+                            <div class="d-flex justify-content-between small"><span>결제 수단</span><span id="detailPaymentMethod"></span></div>
+                            <div class="d-flex justify-content-between small"><span>결제 상태</span><span id="detailPaymentStatus"></span></div>
+                            <div class="d-flex justify-content-between small"><span>승인 일시</span><span id="detailApprovedAt"></span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 취소 정보 -->
+                <div class="d-none" id="detailCancelBox"
+                     style="padding: 1rem; background: rgba(231, 76, 60, 0.06); border-left: 4px solid #e74c3c; border-radius: 0.5rem; margin-bottom: 1rem;">
+                    <h6 class="admin-detail-title" style="color: #e74c3c;"><i class="bi bi-x-circle-fill me-1"></i>취소 정보</h6>
+                    <div class="row g-2">
+                        <div class="col-4">
+                            <div class="admin-detail-label">취소 주체</div>
+                            <div class="admin-detail-value" id="detailCancelledBy"></div>
+                        </div>
+                        <div class="col-4">
+                            <div class="admin-detail-label">취소 일시</div>
+                            <div class="admin-detail-value" id="detailCancelledAt"></div>
+                        </div>
+                        <div class="col-4">
+                            <div class="admin-detail-label">사유</div>
+                            <div class="admin-detail-value" id="detailCancelReason"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 이력 -->
+                <div style="padding: 1rem; background: #f8f9fa; border-radius: 0.5rem;">
+                    <h6 class="admin-detail-title"><i class="bi bi-clock-history me-1"></i>예약 이력</h6>
+                    <div id="detailHistories" style="font-size: 0.85rem; color: #2c3e50;"></div>
+                </div>
+            </div>
+            <div class="pm-modal__footer">
+                <button type="button" class="admin-btn admin-btn-danger" id="btnCancelFromDetail">
+                    <i class="bi bi-x-circle"></i>예약 취소
+                </button>
+                <button type="button" class="admin-btn admin-btn-secondary" data-pm-close>닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 관리자 취소 -->
+    <div class="pm-modal" id="popAdminCancel" aria-hidden="true">
+        <div class="pm-modal__content" role="dialog" aria-modal="true" tabindex="-1">
+            <div class="pm-modal__header">
+                <h5 class="pm-modal__title"><i class="bi bi-x-circle me-2"></i>예약 취소 <small class="text-muted" id="cancelBookingNumber"></small></h5>
+                <button type="button" class="pm-modal__close" data-pm-close aria-label="닫기">&times;</button>
+            </div>
+            <div class="pm-modal__body">
+                <div class="admin-form-group">
+                    <label class="admin-form-label">환불 방식 *</label>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="radio" name="refundType" id="refundFull" value="FULL" checked>
+                        <label class="form-check-label" for="refundFull">
+                            전액 환불 <span class="text-muted small">(예약 수수료 포함)</span>
+                            <strong class="ms-1" id="refundFullAmount"></strong>
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="refundType" id="refundFare" value="FARE">
+                        <label class="form-check-label" for="refundFare">
+                            항공권 금액만 환불 <span class="text-muted small">(예약 수수료 제외)</span>
+                            <strong class="ms-1" id="refundFareAmount"></strong>
+                        </label>
+                    </div>
+                </div>
+                <div class="admin-form-group mb-0">
+                    <label class="admin-form-label" for="cancelReason">취소 사유</label>
+                    <textarea class="admin-form-control" id="cancelReason" rows="3" maxlength="200"
+                              placeholder="입력하지 않으면 '관리자 취소'로 저장됩니다"></textarea>
+                </div>
+                <p class="small text-muted mt-2 mb-0">관리자 취소는 출발일과 관계없이 처리되며, 좌석은 즉시 반환됩니다.</p>
+            </div>
+            <div class="pm-modal__footer">
+                <button type="button" class="admin-btn admin-btn-secondary" data-pm-close>닫기</button>
+                <button type="button" class="admin-btn admin-btn-danger" id="btnConfirmCancel">
+                    <i class="bi bi-x-circle"></i>취소 처리
+                </button>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+<!-- 페이지 content -->
+<th:block layout:fragment="content">
+    <!-- Filters -->
+    <div class="admin-card" style="margin-bottom: 1.25rem;">
+        <div class="admin-card-body">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-2">
+                    <label class="admin-form-label" for="filterBookingNo">예약번호</label>
+                    <input type="text" class="admin-form-control" id="filterBookingNo" placeholder="BK2026">
+                </div>
+                <div class="col-md-2">
+                    <label class="admin-form-label" for="filterBooker">예약자</label>
+                    <input type="text" class="admin-form-control" id="filterBooker" placeholder="이름 또는 아이디">
+                </div>
+                <div class="col-md-1">
+                    <label class="admin-form-label" for="filterDateType">기간 기준</label>
+                    <select class="admin-form-control" id="filterDateType">
+                        <option value="created">예약일</option>
+                        <option value="flight">출발일</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="admin-form-label" for="filterStartDate">시작일</label>
+                    <input type="date" class="admin-form-control" id="filterStartDate">
+                </div>
+                <div class="col-md-2">
+                    <label class="admin-form-label" for="filterEndDate">종료일</label>
+                    <input type="date" class="admin-form-control" id="filterEndDate">
+                </div>
+                <div class="col-md-1">
+                    <label class="admin-form-label" for="filterStatus">상태</label>
+                    <select class="admin-form-control" id="filterStatus">
+                        <option value="">전체</option>
+                        <option value="confirmed">예약완료</option>
+                        <option value="cancelled">취소</option>
+                    </select>
+                </div>
+                <div class="col-md-auto ms-auto">
+                    <div class="d-flex gap-2">
+                        <button type="button" class="admin-btn admin-btn-primary" id="btnSearch">
+                            <i class="bi bi-search"></i>검색
+                        </button>
+                        <button type="button" class="admin-btn admin-btn-outline" id="btnReset">
+                            <i class="bi bi-arrow-clockwise"></i>초기화
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h5><i class="bi bi-list-ul me-2"></i>예약 목록</h5>
+            <span class="text-muted">총 <strong id="totalCount">0</strong>건</span>
+        </div>
+        <div class="admin-card-body" style="padding: 0; overflow-x: auto;">
+            <table class="admin-table">
+                <thead>
+                <tr>
+                    <th style="width: 60px;" class="text-center">No.</th>
+                    <th style="width: 150px;">예약번호</th>
+                    <th style="width: 140px;">예약자</th>
+                    <th>항공편</th>
+                    <th style="width: 100px;">출발일</th>
+                    <th style="width: 60px;" class="text-center">인원</th>
+                    <th style="width: 110px;" class="text-right">결제금액</th>
+                    <th style="width: 130px;">예약일시</th>
+                    <th style="width: 80px;">상태</th>
+                    <th class="admin-table-actions">액션</th>
+                </tr>
+                </thead>
+                <tbody id="bookingTableBody"></tbody>
+            </table>
+            <template id="bookingRowTemplate">
+                <tr>
+                    <td class="text-center row-no" style="color: #7f8c8d;"></td>
+                    <td><strong class="row-number" style="color: #3498db;"></strong></td>
+                    <td>
+                        <div class="row-member"></div>
+                        <div class="row-login-id" style="font-size: 0.75rem; color: #95a5a6;"></div>
+                    </td>
+                    <td class="row-flight"></td>
+                    <td class="row-flight-date"></td>
+                    <td class="text-center row-passengers"></td>
+                    <td class="text-right"><strong class="row-amount"></strong></td>
+                    <td class="row-created" style="font-size: 0.8rem; color: #7f8c8d;"></td>
+                    <td><span class="admin-badge row-status"></span></td>
+                    <td class="admin-table-actions">
+                        <button type="button" class="admin-btn admin-btn-primary admin-btn-sm btn-detail" title="상세">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                        <button type="button" class="admin-btn admin-btn-danger admin-btn-sm btn-cancel" title="취소">
+                            <i class="bi bi-x-circle"></i>
+                        </button>
+                    </td>
+                </tr>
+            </template>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="d-flex justify-content-center align-items-center mt-4" style="position: relative;">
+        <nav aria-label="Page navigation">
+            <ul class="pagination mb-0" id="pagination"></ul>
+        </nav>
+        <div class="d-flex align-items-center gap-2" style="position: absolute; right: 0;">
+            <span style="font-size: 0.8rem; color: #7f8c8d;">페이지당</span>
+            <select class="admin-form-control" id="pageSize" style="width: auto; padding: 0.375rem 0.625rem; font-size: 0.8rem;">
+                <option value="10" selected>10</option>
+                <option value="20">20</option>
+                <option value="30">30</option>
+                <option value="50">50</option>
+            </select>
+        </div>
+    </div>
+</th:block>
+
+</html>

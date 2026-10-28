@@ -1,0 +1,138 @@
+server:
+  port: 8080
+
+frontend:
+  asset-host: "http://localhost:8081" # devServer 호스트 (정적 파일/manifest 제공)
+  manifest-url: "http://localhost:8081/js/manifest.json"
+
+spring:
+  config:
+    activate:
+      on-profile: local
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD}
+      database: ${REDIS_DATABASE:1}
+      timeout: 100
+      connect-timeout: 500
+      lettuce:
+        pool:
+          max-active: 50
+          max-idle: 20
+          min-idle: 5
+          max-wait: 500
+          time-between-eviction-runs: 60
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  devtools:
+    livereload:
+      enabled: true
+    restart:
+      enabled: true
+
+  jpa:
+    database-platform: org.hibernate.dialect.MariaDBDialect
+    show-sql: true
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+        globally_quoted_identifiers: true
+        globally_quoted_identifiers_skip_column_definitions: true
+
+  thymeleaf:
+    cache: false
+
+  web:
+    error:
+      include-exception: true
+      include-message: always
+      include-binding-errors: always
+      include-stacktrace: always
+
+  mail:
+    host: smtp.gmail.com
+    port: ${google.smtp.port}
+    username: ${google.smtp.mail}
+    password: ${google.smtp.pass-key}
+    default-encoding: UTF-8
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+  security:
+    debug: true
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${google.client-key}
+            client-secret: ${google.secret-key}
+            scope: openid, profile, email
+
+decorator:
+  datasource:
+    p6spy:
+      multiline: true
+
+springdoc:
+  querydsl:
+    enabled: false
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+
+logging:
+  pattern:
+    console: "%green(%d{yyyy-MM-dd HH:mm:ss.SSS}) %magenta([%thread]) %highlight(%5level) %cyan(%logger) - %yellow(%msg%n)"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %5level %logger - %msg%n"
+  file:
+    path: ${LOGGING_PATH:X:/log/flight-booking-system}
+  logback:
+    rollingpolicy:
+      max-file-size: 100MB
+      max-history: 7
+  level:
+    root: info
+    io.miraclecat.fbs: debug
+    org.hibernate:
+      sql: debug
+      orm.jdbc.bind: trace
+    org.springframework:
+      beans: debug
+      data.jpa: debug
+      data.auditing: debug
+    io.lettuce.core.protocol.ConnectionWatchdog: ERROR
+
+# local-properties
+app:
+  base-url: ${APP_BASE_URL:http://localhost:8080}
+
+toss:
+  secret-key: ${TOSS_SECRET_KEY}
+  client-key: ${TOSS_CLIENT_KEY}
+
+google:
+  secret-key: ${GOOGLE_SECRET_KEY}
+  client-key: ${GOOGLE_CLIENT_KEY}
+  smtp:
+    port: ${GOOGLE_SMTP_PORT:587}
+    mail: ${GOOGLE_SMTP_MAIL}
+    pass-key: ${GOOGLE_SMTP_KEY}

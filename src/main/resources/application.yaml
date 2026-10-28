@@ -1,0 +1,43 @@
+# global-env
+spring:
+  profiles:
+    default: local
+
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+
+  web:
+    resources:
+      add-mappings: false
+    error:
+      whitelabel:
+        enabled: false
+      include-exception: false
+      include-message: never
+      include-binding-errors: never
+      include-stacktrace: never
+
+  thymeleaf:
+    prefix: classpath:templates
+    suffix: .html
+    mode: HTML
+    encoding: UTF-8
+    check-template-location: true
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 100MB
+      max-request-size: 100MB
+
+  cache:
+    type: redis
+
+jwt:
+  secret-jwt-key: ${SECRET_JWT_KEY}
+  access-expiration: 15
+  refresh-expiration: 360
+
+# global-properties
+generator:
+  base-package: io.miraclecat.fbs

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/layouts/admin/default-layout}">
+
+<!-- 페이지의 개별적인 css, script -->
+<!--/*@thymesVar id="manifest" type=""*/-->
+<!--/*@thymesVar id="assetHost" type=""*/-->
+<th:block layout:fragment="bodyScript">
+    <th:block th:with="ep=${(manifest['entrypoints'] != null ? manifest['entrypoints']['admin/dashboard/dashboard'] : null)}">
+        <th:block th:if="${ ep != null }">
+            <th:block th:each="src : ${ ep }">
+                <script type="module" th:src="${ assetHost + src }"></script>
+            </th:block>
+        </th:block>
+    </th:block>
+</th:block>
+
+<!-- 페이지 content -->
+<th:block layout:fragment="content">
+    <!-- Stats Cards -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+        <div class="stat-card">
+            <div class="stat-card-icon primary"><i class="bi bi-calendar-check-fill"></i></div>
+            <div class="stat-card-label">오늘 예약</div>
+            <div class="stat-card-value" id="statTodayBookings">-</div>
+            <div class="stat-card-change" id="statTodayBookingsChange"></div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-card-icon success"><i class="bi bi-cash-stack"></i></div>
+            <div class="stat-card-label">이번 달 매출</div>
+            <div class="stat-card-value" id="statMonthlySales">-</div>
+            <div class="stat-card-change" id="statMonthlySalesChange"></div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-card-icon warning"><i class="bi bi-airplane-fill"></i></div>
+            <div class="stat-card-label">운항 중인 항공편</div>
+            <div class="stat-card-value" id="statActiveFlights">-</div>
+            <div class="stat-card-change" id="statActiveFlightsChange"></div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-card-icon danger"><i class="bi bi-people-fill"></i></div>
+            <div class="stat-card-label">총 회원 수</div>
+            <div class="stat-card-value" id="statTotalMembers">-</div>
+            <div class="stat-card-change" id="statTotalMembersChange"></div>
+        </div>
+    </div>
+
+    <!-- Recent Bookings -->
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h5><i class="bi bi-clock-history me-2"></i>최근 예약</h5>
+            <a href="/admin/bookings" class="admin-btn admin-btn-outline" style="padding: 0.5rem 1rem;">
+                전체 보기 <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+        <div class="admin-card-body" style="padding: 0; overflow-x: auto;">
+            <table class="admin-table">
+                <thead>
+                <tr>
+                    <th>예약번호</th>
+                    <th>예약자</th>
+                    <th>출발지 → 도착지</th>
+                    <th>날짜</th>
+                    <th>금액</th>
+                    <th>상태</th>
+                </tr>
+                </thead>
+                <tbody id="recentBookingBody">
+                <tr class="admin-table-empty">
+                    <td colspan="6">최근 예약이 없습니다.</td>
+                </tr>
+                </tbody>
+            </table>
+            <template id="recentBookingTemplate">
+                <tr>
+                    <td><strong class="booking-number"></strong></td>
+                    <td class="booker-name"></td>
+                    <td class="booking-route"></td>
+                    <td class="flight-date"></td>
+                    <td class="total-amount"></td>
+                    <td><span class="admin-badge booking-status"></span></td>
+                </tr>
+            </template>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+        <div class="admin-card">
+            <div class="admin-card-body">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div style="width: 60px; height: 60px; background: rgba(52, 152, 219, 0.1); border-radius: 0.5rem; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-plus-circle-fill" style="font-size: 2rem; color: var(--admin-primary);"></i>
+                    </div>
+                    <div style="flex: 1;">
+                        <h6 style="margin: 0 0 0.5rem 0; color: #2c3e50;">새 항공편 등록</h6>
+                        <a href="/admin/flights" class="admin-btn admin-btn-outline admin-btn-sm">등록하기</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-card">
+            <div class="admin-card-body">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div style="width: 60px; height: 60px; background: rgba(39, 174, 96, 0.1); border-radius: 0.5rem; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-megaphone-fill" style="font-size: 2rem; color: var(--admin-success);"></i>
+                    </div>
+                    <div style="flex: 1;">
+                        <h6 style="margin: 0 0 0.5rem 0; color: #2c3e50;">공지사항 작성</h6>
+                        <a href="/admin/notices" class="admin-btn admin-btn-outline admin-btn-sm">작성하기</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+</html>

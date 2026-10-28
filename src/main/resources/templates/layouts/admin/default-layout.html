@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<!--/*@thymesVar id="pageTitle" type="java.lang.String"*/-->
+<!-- [Head] 영역 시작 -->
+<head>
+    <th:block th:replace="~{/fragments/admin/default/head :: headFragment}"></th:block>
+
+    <!-- [head script] 페이지 전용 css, js -->
+    <th:block layout:fragment="headScript"></th:block>
+</head>
+<!-- [Head] 영역 끝 -->
+
+<!-- [Body] 영역 시작 -->
+<body>
+<div class="admin-container">
+    <!-- [sidebar] -->
+    <aside th:replace="~{/fragments/admin/default/sidebar :: sidebarFragment}"></aside>
+
+    <main class="admin-main">
+        <!-- [topbar] 제목은 컨트롤러 pageTitle, 우측 버튼은 페이지 topbarRight -->
+        <div class="admin-topbar">
+            <div class="admin-topbar-left">
+                <h4 th:text="${pageTitle}">관리자</h4>
+                <div class="breadcrumb">
+                    <i class="bi bi-house-fill me-1"></i> 홈 / <span th:text="${pageTitle}"></span>
+                </div>
+            </div>
+            <div class="admin-topbar-right">
+                <th:block layout:fragment="topbarRight"></th:block>
+            </div>
+        </div>
+
+        <!-- [content] -->
+        <div class="admin-content">
+            <th:block layout:fragment="content"></th:block>
+        </div>
+    </main>
+</div>
+
+<!-- [dialog] 공통 alert / confirm / loading -->
+<div th:replace="~{/fragments/member/dialog/modals :: modalFragment}"></div>
+
+<!-- [page dialog] 페이지 전용 다이얼로그 -->
+<th:block layout:fragment="bodyDialog"></th:block>
+
+<!-- [body script] 페이지 전용 스크립트 -->
+<th:block layout:fragment="bodyScript"></th:block>
+</body>
+<!-- [Body] 영역 끝 -->
+</html>

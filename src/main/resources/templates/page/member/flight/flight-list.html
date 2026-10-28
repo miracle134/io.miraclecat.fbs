@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/layouts/member/default-layout}">
+<!--      layout:decorator="layouts/default">-->
+
+<!-- 페이지의 개별적인 head css, script-->
+<th:block layout:fragment="headScript">
+    <script th:inline="javascript">
+        window.searchValue= /*[[${searchValue}]]*/ [];
+    </script>
+</th:block>
+
+<!-- 페이지의 개별적인 css, script -->
+<!--/*@thymesVar id="manifest" type=""*/-->
+<!--/*@thymesVar id="assetHost" type=""*/-->
+<th:block layout:fragment="bodyScript">
+    <th:block th:with="ep=${(manifest['entrypoints'] != null ? manifest['entrypoints']['member/flight/flight-list'] : null)}">
+        <th:block th:if="${ ep != null }">
+            <th:block th:each="src : ${ ep }">
+                <script type="module" th:src="${ assetHost + src }"></script>
+            </th:block>
+        </th:block>
+    </th:block>
+</th:block>
+
+<!-- 페이지의 개별적인 dialog -->
+<th:block layout:fragment="bodyDialog">
+</th:block>
+
+<!-- 페이지 content -->
+<th:block layout:fragment="content">
+    <!-- Search Info Bar -->
+    <div class="bg-light py-3 border-bottom">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="d-flex align-items-center flex-wrap">
+                        <span class="me-3">
+                            <i class="bi bi-geo-alt-fill text-primary"></i>
+                            <strong id="departureAirport">-</strong>
+                        </span>
+                        <i class="bi bi-arrow-right text-muted me-3"></i>
+                        <span class="me-3">
+                            <i class="bi bi-geo-fill text-danger"></i>
+                            <strong id="arrivalAirport">-</strong>
+                        </span>
+                        <span class="me-3">
+                            <i class="bi bi-calendar text-success"></i>
+                            <span id="departureDate">-</span>
+                        </span>
+                        <span>
+                            <i class="bi bi-people text-info"></i>
+                            <span id="passengerCount">-</span>명
+                        </span>
+                    </div>
+                </div>
+                <div class="col-md-4 text-md-end mt-2 mt-md-0">
+                    <button type="button" class="btn btn-outline-primary" id="btnToggleSearch">
+                        <i class="bi bi-pencil me-1"></i>검색 수정
+                    </button>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0 mt-3 d-none" id="searchEditForm">
+                <div class="card-body">
+                    <div class="row g-2 align-items-end">
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold mb-1">
+                                <i class="bi bi-geo-alt-fill text-primary me-1"></i>출발지
+                            </label>
+                            <select class="form-select" id="editDepartureAirport">
+                                <option value="ICN">인천</option>
+                                <option value="GMP">김포</option>
+                                <option value="CJU">제주</option>
+                                <option value="PUS">김해</option>
+                                <option value="KWJ">광주</option>
+                                <option value="RSU">여수</option>
+                                <option value="USN">울산</option>
+                            </select>
+                        </div>
+                        <div class="col-md-auto text-center">
+                            <button type="button" class="btn btn-light border" id="btnSwapAirport" title="출발지/도착지 바꾸기">
+                                <i class="bi bi-arrow-left-right"></i>
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold mb-1">
+                                <i class="bi bi-geo-fill text-danger me-1"></i>도착지
+                            </label>
+                            <select class="form-select" id="editArrivalAirport">
+                                <option value="ICN">인천</option>
+                                <option value="GMP">김포</option>
+                                <option value="CJU">제주</option>
+                                <option value="PUS">김해</option>
+                                <option value="KWJ">광주</option>
+                                <option value="RSU">여수</option>
+                                <option value="USN">울산</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-semibold mb-1">
+                                <i class="bi bi-calendar-event text-success me-1"></i>출발일
+                            </label>
+                            <input type="date" class="form-control" id="editDepartureDate">
+                        </div>
+                        <div class="col-md-1">
+                            <label class="form-label small fw-semibold mb-1">
+                                <i class="bi bi-people-fill text-info me-1"></i>인원
+                            </label>
+                            <select class="form-select" id="editPassengerCount">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                                <option value="7">7</option>
+                                <option value="8">8</option>
+                                <option value="9">9</option>
+                            </select>
+                        </div>
+                        <div class="col-md">
+                            <button type="button" class="btn btn-primary w-100" id="btnEditSearch">
+                                <i class="bi bi-search me-1"></i>검색
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container my-4">
+        <div class="row">
+            <!-- Filters Sidebar -->
+            <div class="col-lg-3 mb-4">
+                <div class="card" id="filterBar">
+                    <div class="card-header bg-primary text-white">
+                        <h6 class="mb-0"><i class="bi bi-funnel me-2"></i>필터</h6>
+                    </div>
+                    <div class="card-body">
+                        <!-- 가격 범위 -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">가격 범위
+                                <span style="font-size: 0.8rem;font-weight: 400;" id="priceRangeTxt">10,000원 ~ 200,000원</span>
+                            </label>
+                            <input type="range" class="form-range" id="priceRange"
+                                   min="10000" max="200000" step="10000" value="200000">
+                            <div class="d-flex justify-content-between small text-muted">
+                                <span>10,000원</span>
+                                <span>200,000원</span>
+                            </div>
+                        </div>
+
+                        <!-- 출발 시간대 -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">출발 시간대</label>
+                            <div class="form-check">
+                                <input class="form-check-input dst-time-slot" type="checkbox" id="morning" value="MORNING">
+                                <label class="form-check-label" for="morning">
+                                    <i class="bi bi-sunrise text-warning"></i> 오전 (00:00-12:00)
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input dst-time-slot" type="checkbox" id="afternoon" value="AFTERNOON">
+                                <label class="form-check-label" for="afternoon">
+                                    <i class="bi bi-sun text-warning"></i> 오후 (12:00-18:00)
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input dst-time-slot" type="checkbox" id="evening" value="EVENING">
+                                <label class="form-check-label" for="evening">
+                                    <i class="bi bi-moon text-primary"></i> 저녁 (18:00-24:00)
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- 항공사 -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">항공사</label>
+                            <div class="form-check">
+                                <input class="form-check-input airline-code" type="checkbox" id="airline1" value="KE">
+                                <label class="form-check-label" for="airline1">대한항공</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input airline-code" type="checkbox" id="airline2" value="OZ">
+                                <label class="form-check-label" for="airline2">아시아나항공</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input airline-code" type="checkbox" id="airline3" value="7C">
+                                <label class="form-check-label" for="airline3">제주항공</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input airline-code" type="checkbox" id="airline4" value="TW">
+                                <label class="form-check-label" for="airline4">티웨이항공</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input airline-code" type="checkbox" id="airline5" value="ZE">
+                                <label class="form-check-label" for="airline5">이스타항공</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input airline-code" type="checkbox" id="airline6" value="LJ">
+                                <label class="form-check-label" for="airline6">진에어</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input airline-code" type="checkbox" id="airline7" value="YP">
+                                <label class="form-check-label" for="airline7">에어프레미아</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input airline-code" type="checkbox" id="airline8" value="RS">
+                                <label class="form-check-label" for="airline8">에어서울</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input airline-code" type="checkbox" id="airline9" value="BX">
+                                <label class="form-check-label" for="airline9">에어부산</label>
+                            </div>
+                        </div>
+
+                        <!-- 초기화 버튼 -->
+                        <button class="btn btn-outline-secondary w-100 mt-3" id="resetFilters">
+                            <i class="bi bi-arrow-clockwise me-1"></i>필터 초기화
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Flight List -->
+            <div class="col-lg-9">
+                <!-- Sort & Results Info -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <span class="text-muted">총 <strong id="totalCount">-</strong>개의 항공편</span>
+                    </div>
+                    <div>
+                        <select class="form-select" id="sortSelect">
+                            <option value="PRICE_ASC">가격 낮은 순</option>
+                            <option value="DEPARTURE_ASC">출발 시간 순</option>
+                            <option value="DURATION_ASC">소요 시간 순</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Flight Cards -->
+                <div id="flightList">
+                </div>
+                <template id="flightListTemplate">
+                    <div class="card flight-card mb-3 flight-id">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <!-- 항공사 로고 -->
+                                <div class="col-md-2 text-center mb-3 mb-md-0">
+                                    <img src="/images/air/koreanair.png"
+                                         alt="대한항공" class="img-fluid mb-2 logoUrl" style="max-width: 60px;">
+                                    <div class="small text-muted airlineNameKo">대한항공</div>
+                                    <div class="small text-muted flightNumber">KE1234</div>
+                                </div>
+
+                                <!-- 시간 정보 -->
+                                <div class="col-md-6 mb-3 mb-md-0">
+                                    <div class="row align-items-center">
+                                        <div class="col-4 text-center">
+                                            <div class="flight-time departureTime">09:00</div>
+                                            <div class="small text-muted departureAirport">ICN</div>
+                                        </div>
+                                        <div class="col-4 text-center">
+                                            <div class="flight-duration">
+                                                <i class="bi bi-arrow-right position-relative" style="z-index: 1;"></i>
+                                            </div>
+                                            <div class="small text-muted durationMinutes">1시간 10분</div>
+                                        </div>
+                                        <div class="col-4 text-center">
+                                            <div class="flight-time arrivalTime">10:10</div>
+                                            <div class="small text-muted arrivalAirport">CJU</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 가격 & 예약 -->
+                                <div class="col-md-4 text-center text-md-end">
+                                    <div class="text-primary fw-bold fs-4 mb-2 basePrice">69,000원</div>
+                                    <div class="small text-muted mb-2">잔여 좌석: <span class="availableSeats">8</span>석</div>
+                                    <button class="btn btn-primary btnBooking">
+                                        <i class="bi bi-calendar-check me-1"></i>예약하기
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- Pagination -->
+<!--                <nav aria-label="Page navigation" class="mt-4">-->
+<!--                    <ul class="pagination justify-content-center">-->
+<!--                        <li class="page-item disabled">-->
+<!--                            <a class="page-link" href="#" tabindex="-1">이전</a>-->
+<!--                        </li>-->
+<!--                        <li class="page-item active"><a class="page-link" href="#">1</a></li>-->
+<!--                        <li class="page-item"><a class="page-link" href="#">2</a></li>-->
+<!--                        <li class="page-item"><a class="page-link" href="#">3</a></li>-->
+<!--                        <li class="page-item">-->
+<!--                            <a class="page-link" href="#">다음</a>-->
+<!--                        </li>-->
+<!--                    </ul>-->
+<!--                </nav>-->
+            </div>
+        </div>
+    </div>
+</th:block>
+
+</html>

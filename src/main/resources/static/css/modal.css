@@ -1,0 +1,231 @@
+:root {
+    --pm-primary: #667eea;
+    --pm-primary-dark: #5568d3;
+    --pm-info: #0dcaf0;
+    --pm-success: #198754;
+    --pm-warning: #ffc107;
+    --pm-danger: #dc3545;
+    --pm-secondary: #6c757d;
+    --pm-text: #212529;
+    --pm-border: #e9ecef;
+    --pm-radius: 12px;
+    --pm-shadow: 0 10px 40px rgba(0, 0, 0, .25);
+}
+
+.pm-modal, .pm-loading {
+    font-family: 'Noto Sans KR', -apple-system, 'Malgun Gothic', sans-serif;
+    color: var(--pm-text);
+    line-height: 1.5;
+}
+.pm-modal *, .pm-modal *::before, .pm-modal *::after,
+.pm-loading *, .pm-loading *::before, .pm-loading *::after { box-sizing: border-box; }
+
+/* 스크롤 잠금 (Bootstrap의 modal-open / style.css의 no-scroll 과 별개) */
+body.pm-modal-open { overflow: hidden; }
+
+/* ---------- Modal ---------- */
+.pm-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(0, 0, 0, .5);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .2s, visibility .2s;
+}
+.pm-modal.pm-is-open { opacity: 1; visibility: visible; }
+
+/* 겹침 순서(뒤에 있을수록 위): 커스텀 다이얼로그 < confirm/alert < loading
+   커스텀 다이얼로그는 pm-root 바깥(페이지 어딘가)에 위치할 수 있어
+   DOM 순서에 의존하지 않도록 z-index로 티어를 고정한다. */
+.pm-modal[data-pm="confirm"],
+.pm-modal[data-pm="alert"] { z-index: 2050; }
+
+.pm-modal__content {
+    width: 100%;
+    max-width: 500px;
+    max-height: calc(100vh - 32px);
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-radius: var(--pm-radius);
+    box-shadow: var(--pm-shadow);
+    transform: translateY(-20px) scale(.97);
+    transition: transform .2s;
+    outline: none;
+}
+.pm-modal.pm-is-open .pm-modal__content { transform: none; }
+
+/* 크기: 커스텀 다이얼로그 템플릿에서 그대로 붙여 쓰는 고정 폭 */
+.pm-modal--md    .pm-modal__content { max-width: 500px; }
+.pm-modal--lg    .pm-modal__content { max-width: 800px; }
+.pm-modal--xl    .pm-modal__content { max-width: 1140px; }
+.pm-modal--form1 .pm-modal__content { max-width: 500px; }
+.pm-modal--form2 .pm-modal__content { max-width: 720px; }
+.pm-modal--form3 .pm-modal__content { max-width: 960px; }
+.pm-modal--full { padding: 0; }
+.pm-modal--full .pm-modal__content { max-width: none; height: 100%; max-height: none; border-radius: 0; }
+
+/* 구조 */
+.pm-modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--pm-border);
+}
+.pm-modal__header--plain { border-bottom: 0; padding-bottom: 0; justify-content: flex-end; }
+.pm-modal__title { margin: 0; font-size: 1.25rem; font-weight: 500; }
+.pm-modal__body { padding: 20px; overflow-y: auto; flex: 1; }
+
+/* 바디 안에 스크롤 영역을 직접 나누고 싶을 때 쓰는 범용 모디파이어.
+   팝업 자체 높이는 .pm-modal__content의 max-height로 이미 제한되어 있으므로(calc(100vh-32px)),
+   바디 자체 스크롤(overflow-y:auto)을 끄고 자식들이 각자 스크롤을 갖게 한다.
+   예: 좌석 선택처럼 "좌측 패널은 고정, 우측만 스크롤" 같은 레이아웃에 사용.
+     <div class="pm-modal__body pm-modal__body--flush">
+       <div class="pm-split">
+         <div class="pm-split__side"> ... (필요하면 이 안도 자체 스크롤) ... </div>
+         <div class="pm-split__main"> ... 긴 콘텐츠, 이 영역만 스크롤 ... </div>
+       </div>
+     </div> */
+.pm-modal__body--flush { padding: 0; overflow: hidden; display: flex; }
+.pm-split { display: flex; width: 100%; min-height: 0; }
+.pm-split__side {
+    flex: 0 0 auto;
+    overflow-y: auto;
+    min-height: 0;
+    padding: 20px 16px;
+    border-right: 1px solid var(--pm-border);
+}
+.pm-split__main { flex: 1; overflow-y: auto; min-height: 0; padding: 20px; }
+
+.pm-modal__footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 12px 20px;
+    border-top: 1px solid var(--pm-border);
+}
+.pm-modal__footer--plain { border-top: 0; justify-content: center; padding-bottom: 20px; }
+
+.pm-modal__close {
+    width: 32px;
+    height: 32px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    font-size: 1.5rem;
+    line-height: 1;
+    color: var(--pm-secondary);
+    cursor: pointer;
+}
+.pm-modal__close:hover { background: #f1f3f5; color: var(--pm-text); }
+.pm-modal__close:focus-visible { outline: 3px solid rgba(102, 126, 234, .5); }
+
+/* Alert / Confirm */
+.pm-modal__center { text-align: center; padding: 8px 24px 16px; }
+.pm-modal__message { margin: 0; font-size: 1.15rem; word-break: keep-all; white-space: pre-line; }
+.pm-modal__icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #fff;
+    background: var(--pm-primary);
+}
+.pm-modal__icon--info    { background: var(--pm-primary); }
+.pm-modal__icon--success { background: var(--pm-success); }
+.pm-modal__icon--warning { background: var(--pm-warning); color: var(--pm-text); }
+.pm-modal__icon--error   { background: var(--pm-danger); }
+
+/* ---------- Button ---------- */
+.pm-btn {
+    display: inline-block;
+    padding: 8px 18px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #fff;
+    background: var(--pm-primary);
+    cursor: pointer;
+    transition: filter .15s, transform .05s;
+}
+.pm-btn:hover { filter: brightness(.93); }
+.pm-btn:active { transform: translateY(1px); }
+.pm-btn:focus-visible { outline: 3px solid rgba(102, 126, 234, .5); outline-offset: 2px; }
+.pm-btn:disabled { opacity: .5; cursor: not-allowed; }
+.pm-btn--wide { padding-left: 28px; padding-right: 28px; }
+.pm-btn--primary   { background: var(--pm-primary); }
+.pm-btn--secondary { background: var(--pm-secondary); }
+.pm-btn--success   { background: var(--pm-success); }
+.pm-btn--danger    { background: var(--pm-danger); }
+.pm-btn--warning   { background: var(--pm-warning); color: var(--pm-text); }
+.pm-btn--info      { background: var(--pm-info); color: var(--pm-text); }
+
+/* ---------- Form (모달 본문용, 선택 사용) ---------- */
+.pm-field { margin-bottom: 16px; }
+.pm-label { display: block; margin-bottom: 6px; font-weight: 500; }
+.pm-input {
+    width: 100%;
+    padding: 8px 12px;
+    font-family: inherit;
+    font-size: 1rem;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+}
+.pm-input:focus {
+    outline: none;
+    border-color: var(--pm-primary);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, .25);
+}
+
+/* ---------- 다중 열 폼 (form2 / form3 에서 자동 적용) ---------- */
+.pm-form-grid { display: grid; grid-template-columns: 1fr; gap: 0 16px; }
+.pm-form-grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.pm-form-grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.pm-field--full { grid-column: 1 / -1; }
+@media (max-width: 900px) { .pm-form-grid--3 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .pm-form-grid--2, .pm-form-grid--3 { grid-template-columns: 1fr; } }
+
+/* ---------- Loading ---------- */
+.pm-loading {
+    position: fixed;
+    inset: 0;
+    z-index: 2100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, .6);
+    color: #fff;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .2s, visibility .2s;
+}
+.pm-loading.pm-is-open { opacity: 1; visibility: visible; }
+.pm-loading__spinner {
+    width: 48px;
+    height: 48px;
+    border: 5px solid rgba(255, 255, 255, .3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: pm-spin .8s linear infinite;
+}
+.pm-loading__text { margin: 16px 0 0; }
+@keyframes pm-spin { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+    .pm-modal, .pm-modal__content, .pm-loading { transition: none; }
+    .pm-loading__spinner { animation-duration: 2s; }
+}

@@ -1,0 +1,51 @@
+/* ==========================================================
+   common.css
+   - member / admin 공통 (테마 색상은 각 영역 css에서 지정)
+   ========================================================== */
+
+/* ========== Global ========== */
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+}
+
+/* ========== Disabled Buttons ========== */
+.btn:disabled,
+.btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ========== Form ========== */
+.form-control::placeholder {
+    color: #999;
+    opacity: 1;
+}
+
+/* ========== popup (구 다이얼로그 pop-overlay) ========== */
+/* body 스크롤 잠금 */
+body.no-scroll {
+    overflow: hidden;
+}
+
+/* 팝업 레이아웃 및 트랜지션 설정 */
+.pop-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+
+    /* Fade 애니메이션 설정 */
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+}
+
+/* 트랜지션 활성화 클래스 */
+.pop-overlay.is-open {
+    opacity: 1;
+}

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<!--/*@thymesVar id="menu" type="java.lang.String"*/-->
+<aside class="admin-sidebar" th:fragment="sidebarFragment">
+    <div class="admin-logo">
+        <i class="bi bi-airplane-fill" style="font-size: 1.5rem; margin-right: 0.5rem;"></i>
+        <h3>Flight Booking</h3>
+        <small>관리자 페이지</small>
+    </div>
+
+    <nav>
+        <ul class="admin-menu">
+            <li class="admin-menu-item">
+                <a href="/admin/dashboard" class="admin-menu-link" th:classappend="${menu == 'dashboard'} ? 'active'">
+                    <i class="bi bi-speedometer2"></i><span>대시보드</span>
+                </a>
+            </li>
+            <li class="admin-menu-item">
+                <a href="/admin/flights" class="admin-menu-link" th:classappend="${menu == 'flights'} ? 'active'">
+                    <i class="bi bi-airplane"></i><span>항공편 관리</span>
+                </a>
+            </li>
+            <li class="admin-menu-item">
+                <a href="/admin/bookings" class="admin-menu-link" th:classappend="${menu == 'bookings'} ? 'active'">
+                    <i class="bi bi-ticket-detailed"></i><span>예약 관리</span>
+                </a>
+            </li>
+            <li class="admin-menu-item">
+                <a href="/admin/notices" class="admin-menu-link" th:classappend="${menu == 'notices'} ? 'active'">
+                    <i class="bi bi-megaphone"></i><span>공지사항 관리</span>
+                </a>
+            </li>
+            <li class="admin-menu-item">
+                <a href="/admin/users" class="admin-menu-link" th:classappend="${menu == 'users'} ? 'active'">
+                    <i class="bi bi-people"></i><span>회원 관리</span>
+                </a>
+            </li>
+            <li class="admin-menu-item">
+                <a href="/admin/statistics" class="admin-menu-link" th:classappend="${menu == 'statistics'} ? 'active'">
+                    <i class="bi bi-bar-chart"></i><span>통계</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="admin-sidebar-footer">
+        <div class="admin-user-info">
+            <div class="admin-user-avatar"><i class="bi bi-person-fill"></i></div>
+            <div class="admin-user-details">
+                <span class="admin-user-name" sec:authentication="principal.name">관리자</span>
+                <span class="admin-user-role">Administrator</span>
+            </div>
+        </div>
+        <a href="/" class="admin-btn admin-btn-outline" style="width: 100%; margin-top: 1rem; color: #fff; border-color: rgba(255,255,255,0.3);">
+            <i class="bi bi-house"></i>사용자 화면
+        </a>
+        <a href="/auth/logout?redirect=/admin/login" class="admin-btn admin-btn-danger" style="width: 100%; margin-top: 0.5rem;" id="btnAdminLogout">
+            <i class="bi bi-box-arrow-right"></i>로그아웃
+        </a>
+    </div>
+</aside>
+
+</html>

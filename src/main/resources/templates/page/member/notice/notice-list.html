@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/layouts/member/default-layout}">
+
+<!-- 페이지의 개별적인 head css, script-->
+<th:block layout:fragment="headScript">
+</th:block>
+
+<!-- 페이지의 개별적인 css, script -->
+<!--/*@thymesVar id="manifest" type=""*/-->
+<!--/*@thymesVar id="assetHost" type=""*/-->
+<th:block layout:fragment="bodyScript">
+    <th:block th:with="ep=${(manifest['entrypoints'] != null ? manifest['entrypoints']['member/notice/notice-list'] : null)}">
+        <th:block th:if="${ ep != null }">
+            <th:block th:each="src : ${ ep }">
+                <script type="module" th:src="${ assetHost + src }"></script>
+            </th:block>
+        </th:block>
+    </th:block>
+</th:block>
+
+<!-- 페이지의 개별적인 dialog -->
+<th:block layout:fragment="bodyDialog">
+</th:block>
+
+<!-- 페이지 content -->
+<th:block layout:fragment="content">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="container text-center">
+            <h1 class="display-5 fw-bold mb-2">
+                <i class="bi bi-megaphone"></i> 공지사항
+            </h1>
+            <p class="lead mb-0">서비스 이용 안내와 소식을 확인하세요</p>
+        </div>
+    </div>
+
+    <div class="container my-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-9">
+                <!-- 검색 -->
+                <div class="d-flex justify-content-between align-items-center mb-3 gap-2">
+                    <span class="text-muted">총 <strong id="totalCount">0</strong>건</span>
+                    <div class="input-group" style="max-width: 320px;">
+                        <input type="text" class="form-control" id="searchTitle" placeholder="제목 검색">
+                        <button class="btn btn-outline-primary" type="button" id="btnSearch">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 목록 -->
+                <div class="list-group" id="noticeList"></div>
+
+                <template id="noticeItemTemplate">
+                    <a href="#" class="list-group-item list-group-item-action py-3 notice-item">
+                        <div class="d-flex justify-content-between align-items-center gap-3">
+                            <div class="text-truncate">
+                                <span class="badge bg-danger me-2 notice-important d-none">중요</span>
+                                <span class="fw-semibold notice-title"></span>
+                            </div>
+                            <div class="small text-muted text-nowrap">
+                                <span class="notice-date"></span>
+                                <span class="ms-2"><i class="bi bi-eye me-1"></i><span class="notice-views"></span></span>
+                            </div>
+                        </div>
+                    </a>
+                </template>
+
+                <!-- Empty -->
+                <div id="emptyState" class="text-center py-5 d-none">
+                    <i class="bi bi-inbox display-4 text-muted"></i>
+                    <p class="text-muted mt-3 mb-0">등록된 공지사항이 없습니다.</p>
+                </div>
+
+                <!-- Pagination -->
+                <nav aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center" id="pagination"></ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+</html>

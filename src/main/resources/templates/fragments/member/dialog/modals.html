@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<div th:fragment="modalFragment">
+    <div class="pm-root">
+        <div class="pm-modal pm-modal--md" data-pm="dialog" aria-hidden="true">
+            <div class="pm-modal__content" role="dialog" aria-modal="true" tabindex="-1">
+                <div class="pm-modal__header"><h5 class="pm-modal__title" data-pm="dialog-title"></h5>
+                    <button type="button" class="pm-modal__close" data-pm-close="" aria-label="닫기">×</button>
+                </div>
+                <div class="pm-modal__body" data-pm="dialog-body"></div>
+                <div class="pm-modal__footer" data-pm="dialog-footer"></div>
+            </div>
+        </div>
+        <div class="pm-modal" data-pm="confirm" aria-hidden="true">
+            <div class="pm-modal__content" role="alertdialog" aria-modal="true" tabindex="-1">
+                <div class="pm-modal__header pm-modal__header--plain">
+                    <button type="button" class="pm-modal__close" data-pm-close="" aria-label="닫기">×</button>
+                </div>
+                <div class="pm-modal__body pm-modal__center">
+                    <div class="pm-modal__icon pm-modal__icon--warning" data-pm="confirm-icon">!</div>
+                    <p class="pm-modal__message" data-pm="confirm-msg"></p></div>
+                <div class="pm-modal__footer pm-modal__footer--plain">
+                    <button type="button" class="pm-btn pm-btn--secondary pm-btn--wide" data-pm-close="">취소</button>
+                    <button type="button" class="pm-btn pm-btn--primary pm-btn--wide" data-pm="confirm-ok">확인</button>
+                </div>
+            </div>
+        </div>
+        <div class="pm-modal" data-pm="alert" aria-hidden="true">
+            <div class="pm-modal__content" role="alertdialog" aria-modal="true" tabindex="-1">
+                <div class="pm-modal__header pm-modal__header--plain">
+                    <button type="button" class="pm-modal__close" data-pm-close="" aria-label="닫기">×</button>
+                </div>
+                <div class="pm-modal__body pm-modal__center">
+                    <div class="pm-modal__icon" data-pm="alert-icon"></div>
+                    <p class="pm-modal__message" data-pm="alert-msg"></p>
+                </div>
+                <div class="pm-modal__footer pm-modal__footer--plain">
+                    <button type="button" class="pm-btn pm-btn--primary pm-btn--wide" data-pm-close="">확인</button>
+                </div>
+            </div>
+        </div>
+        <div class="pm-loading" data-pm="loading">
+            <div class="pm-loading__spinner" role="status"></div>
+            <p class="pm-loading__text" data-pm="loading-msg"></p></div>
+    </div>
+</div>
+</html>

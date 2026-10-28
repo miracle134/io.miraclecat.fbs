@@ -1,0 +1,78 @@
+<!--
+ * packageName    : templates.fragments.member.dialog
+ * fileName       : seat-select
+ * author         : MiracleCat
+ * date           : 26. 10. 24.
+ * description    : 좌석 선택 다이얼로그
+-->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:fragment="seatSelectDialog">
+    <div class="pm-modal pm-modal--lg" id="popSeatSelect" aria-hidden="true">
+        <div class="pm-modal__content" role="dialog" aria-modal="true" tabindex="-1">
+            <div class="pm-modal__header">
+                <h5 class="pm-modal__title">
+                    <i class="bi bi-grid-3x3 me-2"></i>좌석 선택
+                </h5>
+                <button type="button" class="pm-modal__close" data-pm-close aria-label="닫기">&times;</button>
+            </div>
+
+            <div class="pm-modal__body pm-modal__body--flush">
+                <div class="pm-split">
+                    <!-- 승객 패널: JS가 passengerCount만큼 채움, 자체 스크롤 -->
+                    <div class="pm-split__side">
+                        <div class="seat-passenger-list" id="seatPassengerList"></div>
+                    </div>
+
+                    <!-- 좌석맵: JS가 total/occupied로 채움, 이 영역만 스크롤 -->
+                    <div class="pm-split__main">
+                        <div class="d-flex justify-content-center gap-4 mb-4 flex-wrap">
+                            <div class="d-flex align-items-center">
+                                <div class="seat-legend seat-available"></div>
+                                <small class="ms-2">선택 가능</small>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <div class="seat-legend seat-selected"></div>
+                                <small class="ms-2">선택됨</small>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <div class="seat-legend seat-occupied"></div>
+                                <small class="ms-2">예약됨</small>
+                            </div>
+                        </div>
+
+                        <div class="seat-map">
+                            <div class="text-center mb-2 small text-muted">
+                                <div class="d-flex justify-content-center align-items-center">
+                                    <span style="width: 30px;"></span>
+                                    <span style="width: 30px;">A</span>
+                                    <span style="width: 30px;">B</span>
+                                    <span style="width: 30px;">C</span>
+                                    <span style="width: 40px;"></span>
+                                    <span style="width: 30px;">D</span>
+                                    <span style="width: 30px;">E</span>
+                                    <span style="width: 30px;">F</span>
+                                </div>
+                            </div>
+
+                            <!-- 좌석: seat-select.js가 total/occupied로 자동 생성 -->
+                            <div id="seatContainer"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pm-modal__footer">
+                <button type="button" class="pm-btn pm-btn--secondary" id="clearSeatsBtn">
+                    <i class="bi bi-x-circle me-1"></i>선택 초기화
+                </button>
+                <button type="button" class="pm-btn pm-btn--primary" id="confirmSeatsBtn">
+                    <i class="bi bi-check-circle me-1"></i>확인
+                </button>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+</html>

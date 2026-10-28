@@ -1,0 +1,131 @@
+# dev / prod 공통 구성 (값은 모두 환경변수)
+server:
+  forward-headers-strategy: framework
+  port: ${SERVER_PORT:8080}
+
+frontend:
+  asset-host: ""
+  manifest-classpath: "classpath:/static/js/manifest.json"
+
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD}
+      database: ${REDIS_DATABASE:0}
+      timeout: 100
+      connect-timeout: 500
+      lettuce:
+        pool:
+          max-active: 50
+          max-idle: 20
+          min-idle: 5
+          max-wait: 500
+          time-between-eviction-runs: 60
+
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    database-platform: org.hibernate.dialect.MariaDBDialect
+    show-sql: false
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
+    properties:
+      hibernate:
+        globally_quoted_identifiers: true
+        globally_quoted_identifiers_skip_column_definitions: true
+
+  thymeleaf:
+    cache: true
+
+  web:
+    resources:
+      chain:
+        cache: true
+    error:
+      whitelabel:
+        enabled: false
+      include-exception: false
+      include-message: never
+      include-binding-errors: never
+      include-stacktrace: never
+
+  mail:
+    host: smtp.gmail.com
+    port: ${google.smtp.port}
+    username: ${google.smtp.mail}
+    password: ${google.smtp.pass-key}
+    default-encoding: UTF-8
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+  security:
+    debug: false
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${google.client-key}
+            client-secret: ${google.secret-key}
+            scope: openid, profile, email
+
+decorator:
+  datasource:
+    p6spy:
+      enable-logging: false
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %5level %logger - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %5level %logger - %msg%n"
+  file:
+    path: ${LOGGING_PATH:/home/miraclecat/App/was/logs}
+  logback:
+    rollingpolicy:
+      max-file-size: 100MB
+      max-history: 30
+  level:
+    root: info
+    io.miraclecat.fbs: info
+    io.lettuce.core.protocol.ConnectionWatchdog: ERROR
+
+# properties
+app:
+  base-url: ${APP_BASE_URL:https://flight-booking.site}
+  cookie-secure: true
+
+toss:
+  secret-key: ${TOSS_SECRET_KEY}
+  client-key: ${TOSS_CLIENT_KEY}
+
+google:
+  secret-key: ${GOOGLE_SECRET_KEY}
+  client-key: ${GOOGLE_CLIENT_KEY}
+  smtp:
+    port: ${GOOGLE_SMTP_PORT:587}
+    mail: ${GOOGLE_SMTP_MAIL}
+    pass-key: ${GOOGLE_SMTP_KEY}

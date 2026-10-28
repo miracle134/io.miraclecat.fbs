@@ -1,0 +1,36 @@
+{
+  "engines": {
+    "node": "22.17.1"
+  },
+  "name": "io-frontend",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "webpack serve --config webpack.dev.js --mode development",
+    "build": "webpack --config webpack.prod.js --mode production"
+  },
+  "devDependencies": {
+    "clean-webpack-plugin": "^4.0.0",
+    "copy-webpack-plugin": "^14.0.0",
+    "css-loader": "^7.1.2",
+    "glob": "^11.0.3",
+    "mini-css-extract-plugin": "^2.9.4",
+    "style-loader": "^4.0.0",
+    "webpack": "^5.100.2",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^6.1.0",
+    "webpack-manifest-plugin": "^5.0.1"
+  },
+  "dependencies": {
+    "@stomp/stompjs": "^7.5.0",
+    "axios": "^1.12.2",
+    "bootstrap": "^5.3.8",
+    "bootstrap-icons": "^1.13.1",
+    "chart.js": "^4.6.1",
+    "dayjs": "^1.11.13",
+    "dompurify": "^3.3.0",
+    "flatpickr": "^4.6.13",
+    "jquery": "^3.7.1",
+    "jstree": "^3.3.17",
+    "webpack-merge": "^6.0.1"
+  }
+}

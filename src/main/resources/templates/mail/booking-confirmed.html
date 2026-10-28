@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>예약 완료</title>
+</head>
+<body style="margin:0;padding:0;background:#f4f6f9;font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6f9;padding:32px 0;">
+    <tr>
+        <td align="center">
+            <table role="presentation" width="560" cellpadding="0" cellspacing="0"
+                   style="background:#ffffff;border-radius:8px;overflow:hidden;">
+                <tr>
+                    <td style="background:#667eea;color:#ffffff;padding:20px 28px;font-size:18px;font-weight:bold;">
+                        ✈ Flight Booking
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:28px;color:#333333;font-size:14px;line-height:1.7;">
+                        <p style="margin:0 0 4px;font-size:16px;font-weight:bold;">예약이 완료되었습니다</p>
+                        <p style="margin:0 0 20px;color:#666666;">
+                            예약번호 <strong style="color:#667eea;" th:text="${bookingNumber}">B000</strong>
+                        </p>
+
+                        <!-- 항공편 -->
+                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+                               style="border:1px solid #e5e7eb;border-radius:6px;margin-bottom:20px;">
+                            <tr>
+                                <td style="padding:14px 16px;border-bottom:1px solid #e5e7eb;background:#f8f9fa;font-weight:bold;">
+                                    <span th:text="${flightNumber}">KE1234</span>
+                                    · <span th:text="${flightDate}">2026-11-01</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding:16px;">
+                                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                                        <tr>
+                                            <td width="40%" style="font-size:20px;font-weight:bold;">
+                                                <span th:text="${departureTime}">09:00</span>
+                                                <div style="font-size:13px;font-weight:normal;color:#666666;"
+                                                     th:text="${departureAirport}">ICN</div>
+                                            </td>
+                                            <td width="20%" style="text-align:center;color:#999999;">→</td>
+                                            <td width="40%" style="font-size:20px;font-weight:bold;text-align:right;">
+                                                <span th:text="${arrivalTime}">10:10</span>
+                                                <div style="font-size:13px;font-weight:normal;color:#666666;"
+                                                     th:text="${arrivalAirport}">CJU</div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- 탑승객 -->
+                        <p style="margin:0 0 8px;font-weight:bold;">탑승객</p>
+                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+                               style="border-collapse:collapse;margin-bottom:20px;">
+                            <tr style="background:#f8f9fa;">
+                                <td style="padding:8px 12px;border:1px solid #e5e7eb;">이름</td>
+                                <td style="padding:8px 12px;border:1px solid #e5e7eb;">영문 이름</td>
+                                <td style="padding:8px 12px;border:1px solid #e5e7eb;text-align:center;">좌석</td>
+                            </tr>
+                            <tr th:each="p : ${passengers}">
+                                <td style="padding:8px 12px;border:1px solid #e5e7eb;" th:text="${p.name}">홍길동</td>
+                                <td style="padding:8px 12px;border:1px solid #e5e7eb;" th:text="${p.nameEn}">HONG GILDONG</td>
+                                <td style="padding:8px 12px;border:1px solid #e5e7eb;text-align:center;" th:text="${p.seatNumber}">1A</td>
+                            </tr>
+                        </table>
+
+                        <!-- 결제 -->
+                        <p style="margin:0 0 8px;font-weight:bold;">결제 금액</p>
+                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px;">
+                            <tr>
+                                <td style="padding:4px 0;color:#666666;">항공 운임</td>
+                                <td style="padding:4px 0;text-align:right;" th:text="${fareAmount} + '원'">100,000원</td>
+                            </tr>
+                            <tr>
+                                <td style="padding:4px 0;color:#666666;">예약 수수료</td>
+                                <td style="padding:4px 0;text-align:right;" th:text="${bookingFeeAmount} + '원'">10,000원</td>
+                            </tr>
+                            <tr>
+                                <td style="padding:8px 0;border-top:1px solid #e5e7eb;font-weight:bold;">총 결제 금액</td>
+                                <td style="padding:8px 0;border-top:1px solid #e5e7eb;text-align:right;font-weight:bold;color:#667eea;"
+                                    th:text="${totalAmount} + '원'">110,000원</td>
+                            </tr>
+                        </table>
+
+                        <p style="margin:0;color:#888888;font-size:12px;">
+                            좌석 변경과 예약 취소는 출발일 하루 전까지 내 예약에서 할 수 있습니다.<br>
+                            예약 취소 시 예약 수수료는 환불되지 않습니다.
+                        </p>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+</body>
+</html>

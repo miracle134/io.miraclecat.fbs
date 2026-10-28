@@ -1,0 +1,621 @@
+/* ==========================================================
+   member.css
+   - 사용자 화면 전용 (보라 테마, 검색/목록/예약/공지 등)
+   ========================================================== */
+
+/* ========== Custom Bootstrap Primary Color Override ========== */
+:root {
+    --bs-primary: #667eea;
+    --bs-primary-rgb: 102, 126, 234;
+}
+
+.btn-primary {
+    background-color: #667eea;
+    border-color: #667eea;
+}
+
+.btn-primary:hover {
+    background-color: #5568d3;
+    border-color: #5568d3;
+}
+
+.btn-primary:focus,
+.btn-primary:active,
+.btn-primary.active {
+    background-color: #4c5ec7 !important;
+    border-color: #4c5ec7 !important;
+    box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.5) !important;
+}
+
+.btn-primary:focus-visible {
+    background-color: #4c5ec7;
+    border-color: #4c5ec7;
+    box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.5);
+}
+
+.btn-check:checked + .btn-primary,
+.btn-check:active + .btn-primary {
+    background-color: #4c5ec7 !important;
+    border-color: #4c5ec7 !important;
+}
+
+.text-primary {
+    color: #667eea !important;
+}
+
+.bg-primary {
+    background-color: #667eea !important;
+}
+
+.btn-outline-primary {
+    color: #667eea;
+    border-color: #667eea;
+}
+
+.btn-outline-primary:hover {
+    background-color: #667eea;
+    border-color: #667eea;
+    color: #fff;
+}
+
+.btn-outline-primary:focus,
+.btn-outline-primary:active,
+.btn-outline-primary.active {
+    background-color: #4c5ec7 !important;
+    border-color: #4c5ec7 !important;
+    color: #fff !important;
+    box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.5) !important;
+}
+
+.btn-outline-secondary {
+    color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    color: #fff;
+}
+
+.btn-outline-secondary:focus,
+.btn-outline-secondary:active {
+    background-color: #5c636a !important;
+    border-color: #5c636a !important;
+    color: #fff !important;
+    box-shadow: 0 0 0 0.25rem rgba(108, 117, 125, 0.5) !important;
+}
+
+.btn-outline-danger {
+    color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-outline-danger:hover {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: #fff;
+}
+
+.btn-outline-danger:focus,
+.btn-outline-danger:active {
+    background-color: #bb2d3b !important;
+    border-color: #bb2d3b !important;
+    color: #fff !important;
+    box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.5) !important;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-secondary:hover {
+    background-color: #5c636a;
+    border-color: #5c636a;
+}
+
+.btn-secondary:focus,
+.btn-secondary:active {
+    background-color: #565e64 !important;
+    border-color: #565e64 !important;
+    box-shadow: 0 0 0 0.25rem rgba(108, 117, 125, 0.5) !important;
+}
+
+/* ========== Alert ========== */
+.alert-info {
+    background-color: rgba(102, 126, 234, 0.1);
+    border-color: rgba(102, 126, 234, 0.2);
+    color: #4c5ec7;
+}
+
+.alert-info .bi {
+    color: #667eea;
+}
+
+/* ========== Seat Selection ========== */
+.seat-map {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.seat-row {
+    margin-bottom: 8px;
+}
+
+.seat-row-number {
+    display: inline-block;
+    width: 30px;
+    text-align: center;
+    font-weight: 500;
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+
+.seat {
+    width: 30px;
+    height: 30px;
+    margin: 0 2px;
+    border: 2px solid #dee2e6;
+    border-radius: 4px;
+    background-color: #fff;
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.seat:hover:not(:disabled) {
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.seat-available {
+    border-color: #198754;
+    color: #198754;
+}
+
+.seat-available:hover {
+    background-color: #d1e7dd;
+    border-color: #0f5132;
+}
+
+.seat-selected {
+    background-color: #667eea;
+    border-color: #667eea;
+    color: #fff;
+}
+
+.seat-selected:hover {
+    background-color: #5568d3;
+    border-color: #5568d3;
+}
+
+.seat-occupied {
+    background-color: #e9ecef;
+    border-color: #adb5bd;
+    color: #6c757d;
+    cursor: not-allowed;
+}
+
+.seat-aisle {
+    width: 40px;
+}
+
+.seat-legend {
+    width: 24px;
+    height: 24px;
+    border: 2px solid;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.seat-legend.seat-available {
+    border-color: #198754;
+    background-color: #fff;
+}
+
+.seat-legend.seat-selected {
+    border-color: #667eea;
+    background-color: #667eea;
+}
+
+.seat-legend.seat-occupied {
+    border-color: #adb5bd;
+    background-color: #e9ecef;
+}
+
+/* ========== Notice ========== */
+.notice-card {
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0,0,0,0.08);
+    cursor: pointer;
+}
+
+.notice-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    transform: translateY(-2px);
+}
+
+.notice-title a {
+    color: #212529;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.notice-title a:hover {
+    color: #667eea;
+}
+
+.notice-content {
+    line-height: 1.8;
+}
+
+.notice-content h5 {
+    color: #667eea;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.notice-content h6 {
+    color: #495057;
+    font-weight: 600;
+}
+
+.notice-content ul {
+    padding-left: 1.5rem;
+}
+
+.notice-content ul li {
+    margin-bottom: 0.5rem;
+}
+
+/* ========== Booking Complete ========== */
+.success-icon {
+    animation: bounce 0.5s ease;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.step-number {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+/* ========== Accordion ========== */
+.accordion-button:not(.collapsed) {
+    background-color: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+}
+
+.accordion-button:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+}
+
+/* ========== List Group ========== */
+.list-group-item.active {
+    background-color: #667eea;
+    border-color: #667eea;
+}
+
+.list-group-item-action:hover {
+    background-color: rgba(102, 126, 234, 0.1);
+}
+
+.list-group-item-action:focus {
+    background-color: rgba(102, 126, 234, 0.15);
+}
+
+/* ========== Hero Section ========== */
+.hero-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 4rem 0 6rem 0;
+    position: relative;
+}
+
+.hero-section::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100px;
+    background: white;
+    clip-path: polygon(0 50%, 100% 0, 100% 100%, 0 100%);
+}
+
+/* ========== Search Card ========== */
+.search-card {
+    position: relative;
+    margin-top: -4rem;
+    z-index: 10;
+}
+
+/* ========== Route Card ========== */
+.route-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.route-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+.route-icon {
+    font-size: 2rem;
+    color: #667eea;
+}
+
+/* ========== Flight Card (for list page) ========== */
+.flight-card {
+    transition: all 0.3s ease;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.flight-card:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+}
+
+.flight-time {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.flight-duration {
+    position: relative;
+}
+
+.flight-duration::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #dee2e6;
+}
+
+/* ========== Page Header ========== */
+.page-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 3rem 0;
+    margin-bottom: 2rem;
+}
+
+/* ========== Form Styles ========== */
+.form-card {
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    border: none;
+}
+
+.card {
+    border: 1px solid rgba(0,0,0,0.08);
+}
+
+.card-header.bg-primary {
+    background-color: #667eea !important;
+    border-bottom: none;
+}
+
+/* ========== Footer ========== */
+.footer {
+    background-color: #f8f9fa;
+    padding: 2rem 0;
+    margin-top: 4rem;
+    border-top: 1px solid #dee2e6;
+}
+
+/* ========== Loading Overlay ========== */
+#loadingOverlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    z-index: 10100;
+    justify-content: center;
+    align-items: center;
+}
+
+#loadingOverlay.show {
+    display: flex;
+}
+
+/* ========== Badge Colors ========== */
+.badge {
+    font-weight: 500;
+}
+
+.badge-available,
+.badge.bg-success {
+    background-color: #198754 !important;
+}
+
+.badge-pending,
+.badge.bg-warning {
+    background-color: #ffc107 !important;
+    color: #000 !important;
+}
+
+.badge-cancelled,
+.badge.bg-danger {
+    background-color: #dc3545 !important;
+}
+
+.badge-completed,
+.badge.bg-secondary {
+    background-color: #6c757d !important;
+}
+
+.badge.bg-light {
+    background-color: #f8f9fa !important;
+    color: #212529 !important;
+    border: 1px solid #dee2e6;
+}
+
+/* ========== Utilities ========== */
+.text-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hover-scale {
+    transition: transform 0.3s ease;
+}
+
+.hover-scale:hover {
+    transform: scale(1.05);
+}
+
+/* ========== Pagination ========== */
+.pagination .page-link {
+    color: #667eea;
+    border-color: #dee2e6;
+}
+
+.pagination .page-link:hover {
+    color: #5568d3;
+    background-color: rgba(102, 126, 234, 0.1);
+    border-color: #667eea;
+}
+
+.pagination .page-link:focus {
+    color: #5568d3;
+    background-color: rgba(102, 126, 234, 0.1);
+    box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #667eea;
+    border-color: #667eea;
+    color: #fff;
+}
+
+.pagination .page-item.disabled .page-link {
+    color: #6c757d;
+    pointer-events: none;
+    background-color: #fff;
+    border-color: #dee2e6;
+}
+
+/* ========== Form Range (Slider) ========== */
+.form-range::-webkit-slider-thumb {
+    background-color: #667eea;
+}
+
+.form-range::-webkit-slider-thumb:hover {
+    background-color: #5568d3;
+}
+
+.form-range::-moz-range-thumb {
+    background-color: #667eea;
+}
+
+.form-range::-moz-range-thumb:hover {
+    background-color: #5568d3;
+}
+
+.form-range:focus::-webkit-slider-thumb {
+    box-shadow: 0 0 0 1px #fff, 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+}
+
+.form-range:focus::-moz-range-thumb {
+    box-shadow: 0 0 0 1px #fff, 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+}
+
+/* ========== Form Check (Checkbox) ========== */
+.form-check-input:checked {
+    background-color: #667eea;
+    border-color: #667eea;
+}
+
+.form-check-input:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+}
+
+.form-check-input:checked:focus {
+    background-color: #5568d3;
+    border-color: #5568d3;
+}
+
+/* ========== Form Select ========== */
+.form-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+}
+
+/* ========== Form Control ========== */
+.form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+}
+
+/* ========== Nav Pills ========== */
+.nav-pills .nav-link {
+    color: #667eea;
+}
+
+.nav-pills .nav-link:hover {
+    color: #5568d3;
+    background-color: rgba(102, 126, 234, 0.1);
+}
+
+.nav-pills .nav-link.active {
+    background-color: #667eea;
+    color: #fff;
+}
+
+.nav-pills .nav-link:focus {
+    box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+}
+
+/* ========== Navbar ========== */
+.navbar-light .navbar-nav .nav-link {
+    color: #495057;
+}
+
+.navbar-light .navbar-nav .nav-link:hover {
+    color: #667eea;
+}
+
+.navbar-light .navbar-nav .nav-link.active {
+    color: #667eea;
+    font-weight: 500;
+}
+
+/* ========== Links ========== */
+a {
+    color: #667eea;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #5568d3;
+}
+
+a:focus {
+    color: #4c5ec7;
+}

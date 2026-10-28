@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+
+<!--/*@thymesVar id="buildStamp" type=""*/-->
+<!--/*@thymesVar id="pageTitle" type=""*/-->
+<th:block th:fragment="headFragment">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title th:text="${pageTitle != null ? pageTitle + ' - Flight Booking Admin' : 'Flight Booking Admin'}">Flight Booking Admin</title>
+
+    <!-- 공통 css, js -->
+    <th:block th:replace="~{/core/public-script :: publicScript}"></th:block>
+
+    <!-- admin css -->
+    <link rel="stylesheet" th:href="@{/css/admin/admin.css(t=${buildStamp})}"/>
+</th:block>
+
+</html>

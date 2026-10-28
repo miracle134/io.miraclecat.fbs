@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<!-- [Head] 영역 시작 -->
+<head>
+	<th:block th:replace="~{/fragments/member/default/head :: headFragment}"></th:block>
+	
+	<!-- [head script] 페이지 전용 css, js -->
+	<th:block layout:fragment="headScript"></th:block>
+</head>
+<!-- [Head] 영역 끝 -->
+
+<!-- [Body] 영역 시작 -->
+<body id="wrap" class="shift">
+	<!-- [header] 영역 시작 -->
+	<div th:replace="~{/fragments/member/default/header :: headerFragment}"></div>
+	<!-- [header] 영역 끝 -->
+	
+	<!-- [content] 영역 시작 -->
+	<th:block layout:fragment="content"></th:block>
+	<!-- [content] 영역 끝 -->
+	
+	<!-- [dialog] 영역 시작 -->
+	<div th:replace="~{/fragments/member/dialog/modals :: modalFragment}"></div>
+	<!-- [dialog] 영역 끝 -->
+
+    <!-- [page dialog] 페이지 전용 다이얼로그 -->
+    <th:block layout:fragment="bodyDialog"></th:block>
+
+	<!-- [footer] 영역 시작 -->
+	<footer th:replace="~{/fragments/member/default/footer :: footerFragment}"></footer>
+	<!-- [footer] 영역 끝 -->
+	
+	<!-- [body script] 페이지 전용 스크립트 -->
+	<th:block layout:fragment="bodyScript"></th:block>
+</body>
+<!-- [Body] 영역 끝 -->
+</html>

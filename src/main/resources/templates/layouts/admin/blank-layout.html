@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<!-- 사이드바 없는 관리자 레이아웃 (로그인 등) -->
+<head>
+    <th:block th:replace="~{/fragments/admin/default/head :: headFragment}"></th:block>
+    <th:block layout:fragment="headScript"></th:block>
+</head>
+
+<body class="admin-login-body">
+<th:block layout:fragment="content"></th:block>
+
+<!-- [dialog] 공통 alert / confirm / loading -->
+<div th:replace="~{/fragments/member/dialog/modals :: modalFragment}"></div>
+
+<th:block layout:fragment="bodyScript"></th:block>
+</body>
+</html>

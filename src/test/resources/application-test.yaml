@@ -1,0 +1,19 @@
+# 통합 테스트 (Testcontainers MariaDB — 접속 정보는 @ServiceConnection 이 주입)
+spring:
+  config:
+    activate:
+      on-profile: test
+  jpa:
+    database-platform: org.hibernate.dialect.MariaDBDialect
+    open-in-view: false
+    hibernate:
+      ddl-auto: create   # 컨테이너가 테스트 후 폐기되므로 drop 불필요 (종료 시 연결 끊김 로그 방지)
+    properties:
+      hibernate:
+        globally_quoted_identifiers: true
+        globally_quoted_identifiers_skip_column_definitions: true
+
+logging:
+  level:
+    root: warn
+    io.miraclecat.fbs: info

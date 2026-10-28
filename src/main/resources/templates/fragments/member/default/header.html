@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<header class="header" th:fragment="headerFragment">
+
+    <!-- Slide Menu : start -->
+    <th:block th:replace="~{/fragments/member/default/menu :: menuFragment}"></th:block>
+    <!--// Slide Menu : end -->
+
+    <th:block th:replace="~{/fragments/member/default/header-script :: headerScriptFragment}">
+    </th:block>
+
+    <script>
+        window.addEventListener('load', () => {
+        });
+    </script>
+    <!--// GNB : end -->
+</header>
+
+</html>

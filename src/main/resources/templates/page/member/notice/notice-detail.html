@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/layouts/member/default-layout}">
+
+<!-- 페이지의 개별적인 head css, script-->
+<th:block layout:fragment="headScript">
+    <script th:inline="javascript">
+        window.noticeId = /*[[${noticeId}]]*/ null;
+    </script>
+</th:block>
+
+<!-- 페이지의 개별적인 css, script -->
+<!--/*@thymesVar id="manifest" type=""*/-->
+<!--/*@thymesVar id="assetHost" type=""*/-->
+<th:block layout:fragment="bodyScript">
+    <th:block th:with="ep=${(manifest['entrypoints'] != null ? manifest['entrypoints']['member/notice/notice-detail'] : null)}">
+        <th:block th:if="${ ep != null }">
+            <th:block th:each="src : ${ ep }">
+                <script type="module" th:src="${ assetHost + src }"></script>
+            </th:block>
+        </th:block>
+    </th:block>
+</th:block>
+
+<!-- 페이지의 개별적인 dialog -->
+<th:block layout:fragment="bodyDialog">
+</th:block>
+
+<!-- 페이지 content -->
+<th:block layout:fragment="content">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="container text-center">
+            <h1 class="display-5 fw-bold mb-2">
+                <i class="bi bi-megaphone"></i> 공지사항
+            </h1>
+        </div>
+    </div>
+
+    <div class="container my-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-9">
+                <div class="card">
+                    <div class="card-header bg-white py-3">
+                        <div class="mb-1">
+                            <span class="badge bg-danger me-2 d-none" id="noticeImportant">중요</span>
+                            <span class="fs-5 fw-bold" id="noticeTitle"></span>
+                        </div>
+                        <div class="small text-muted">
+                            <i class="bi bi-calendar3 me-1"></i><span id="noticeDate"></span>
+                            <span class="ms-3"><i class="bi bi-eye me-1"></i><span id="noticeViews"></span></span>
+                        </div>
+                    </div>
+                    <div class="card-body py-4" id="noticeContent" style="white-space: pre-line; min-height: 200px;"></div>
+                </div>
+
+                <div class="text-center mt-4">
+                    <a href="/notice" class="btn btn-outline-secondary">
+                        <i class="bi bi-list me-1"></i>목록
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+</html>

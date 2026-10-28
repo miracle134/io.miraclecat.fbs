@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:fragment="headFragment">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Flight Booking - 항공권 예약</title>
+
+    <!-- 공통적인 css, js -->
+    <th:block th:replace="~{/core/public-script :: publicScript}"></th:block>
+
+    <!-- member css -->
+    <!--/*@thymesVar id="buildStamp" type=""*/-->
+    <link rel="stylesheet" th:href="@{/css/member/member.css(t=${buildStamp})}"/>
+
+</th:block>
+
+</html>

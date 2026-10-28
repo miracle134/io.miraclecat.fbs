@@ -1,0 +1,80 @@
+/* ==========================================================
+   seat-select.css
+   - 좌석 선택 다이얼로그(승객별 좌석 배정 패널) 전용 스타일
+   - 좌석 자체(.seat, .seat-available, .seat-selected, .seat-occupied, .seat-legend, .seat-row 등)는
+     기존 style.css에 이미 정의되어 있으므로 여기서는 재정의하지 않음
+   - 레이아웃(좌: 승객 패널 고정 / 우: 좌석 스크롤)은 modal.css의 .pm-split 유틸리티를 사용
+   ========================================================== */
+
+.pm-split__side { width: 150px; }
+
+/* 좌석에 "어느 승객이 선택했는지" 번호 배지를 붙인다 (seat-select.js가 선택 시 .seat-owner-badge를 넣음) */
+.seat { position: relative; }
+.seat-owner-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 3px;
+    border-radius: 999px;
+    background: #212529;
+    color: #fff;
+    font-size: .65rem;
+    font-weight: 700;
+    line-height: 16px;
+    text-align: center;
+    pointer-events: none;
+}
+
+/* flex-direction을 명시적으로 고정 — 좁은 화면에서도 가로로 쌓이지 않고 항상 세로 목록 */
+.seat-passenger-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.seat-passenger {
+    display: block;
+    width: 100%;
+    flex: none;               /* 플렉스 아이템으로서 줄어들거나 늘어나지 않고 고정 높이로 쌓임 */
+    text-align: left;
+    padding: 10px 12px;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    background: #fff;
+    cursor: pointer;
+    transition: border-color .15s, box-shadow .15s;
+}
+.seat-passenger:hover { border-color: #adb5bd; }
+
+/* 배경은 안 바꾸고 테두리 색상만 변경: 미선택(회색) → 활성(파랑) → 배정완료(초록) */
+.seat-passenger--active { border-color: var(--pm-primary); }
+.seat-passenger--done   { border-color: var(--pm-success); }
+
+/* 배정완료 + 현재 활성(=모두 초록일 때 "지금 고르고 있는 승객"이 안 보이는 문제):
+   테두리는 초록(완료) 그대로 두고, 파란 아웃라인 링을 더해서 활성 상태를 구분한다. */
+.seat-passenger--active.seat-passenger--done {
+    border-color: var(--pm-primary);
+}
+
+.seat-passenger__name { font-weight: 600; font-size: .9rem; }
+
+.seat-passenger__seat {
+    display: block;
+    margin-top: 2px;
+    font-size: .8rem;
+    color: #6c757d;
+}
+.seat-passenger--done .seat-passenger__seat { color: var(--pm-success); font-weight: 600; }
+
+/* 좁은 화면: 패널을 좌석맵 위로 올리되, 승객 목록은 그대로 세로로 쌓고 자체 스크롤만 허용 */
+@media (max-width: 560px) {
+    .pm-split { flex-direction: column; }
+    .pm-split__side {
+        width: 100%;
+        max-height: 180px;
+        border-right: 0;
+        border-bottom: 1px solid var(--pm-border);
+    }
+}

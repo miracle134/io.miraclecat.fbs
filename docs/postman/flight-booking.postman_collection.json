@@ -1,0 +1,1785 @@
+{
+  "info": {
+    "name": "Flight Booking System",
+    "description": "국내선 항공권 예약 서비스 API\n\n## 사용 순서\n1. Environment에서 baseUrl, loginId, loginPassword 설정\n2. `00 준비 / CSRF 쿠키 받기` 실행 → XSRF-TOKEN 쿠키 발급\n3. `01 인증 / 로그인` 실행 → JWE 쿠키 저장 (Postman 쿠키 저장소)\n4. 이후 요청은 쿠키로 인증, POST·PUT·DELETE는 컬렉션 Pre-request 스크립트가 X-XSRF-TOKEN 헤더를 자동으로 붙임\n\n## 응답 형식\n`{ status, code, message, result }`\n\n## 참고\n- 결제 승인(`/api/payment/confirm`)의 paymentKey는 Toss 결제창을 거쳐야 발급되므로 Postman 단독으로는 끝까지 진행할 수 없음\n- 관리자 API(`/api/admin/**`)는 ADMIN / SUPER_ADMIN 계정으로 로그인 필요",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// 변경 요청에 CSRF 헤더 자동 추가 (Spring Security csrf.spa: XSRF-TOKEN 쿠키 → X-XSRF-TOKEN 헤더)",
+          "const method = pm.request.method;",
+          "if (!['GET', 'HEAD', 'OPTIONS'].includes(method)) {",
+          "  const token = pm.cookies.get('XSRF-TOKEN');",
+          "  if (token) {",
+          "    pm.request.headers.upsert({ key: 'X-XSRF-TOKEN', value: decodeURIComponent(token) });",
+          "  } else {",
+          "    console.warn('XSRF-TOKEN 쿠키가 없습니다. 00 준비 / CSRF 쿠키 받기를 먼저 실행하세요.');",
+          "  }",
+          "}"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "clientId",
+      "value": "postman"
+    },
+    {
+      "key": "flightId",
+      "value": "1"
+    },
+    {
+      "key": "inventoryId",
+      "value": "1"
+    },
+    {
+      "key": "seatNumber",
+      "value": "12A"
+    },
+    {
+      "key": "sessionId",
+      "value": ""
+    },
+    {
+      "key": "orderId",
+      "value": ""
+    },
+    {
+      "key": "amount",
+      "value": ""
+    },
+    {
+      "key": "bookingId",
+      "value": "1"
+    },
+    {
+      "key": "memberId",
+      "value": "1"
+    },
+    {
+      "key": "noticeId",
+      "value": "1"
+    },
+    {
+      "key": "settingId",
+      "value": "1"
+    },
+    {
+      "key": "schedulerLogId",
+      "value": "1"
+    }
+  ],
+  "item": [
+    {
+      "name": "00 준비",
+      "item": [
+        {
+          "name": "CSRF 쿠키 받기",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                ""
+              ],
+              "query": []
+            },
+            "description": "아무 GET 요청으로 XSRF-TOKEN 쿠키를 받습니다."
+          }
+        }
+      ]
+    },
+    {
+      "name": "01 인증",
+      "item": [
+        {
+          "name": "로그인",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/loginProcess",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "loginProcess"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"loginId\": \"{{loginId}}\",\n  \"loginPassword\": \"{{loginPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "JwtAuthenticationFilter. 성공 시 access / refresh JWE 쿠키 발급"
+          }
+        },
+        {
+          "name": "로그아웃",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "회원가입",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/member",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "member"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"loginId\": \"test@example.com\",\n  \"loginPassword\": \"Test1234!\",\n  \"memberName\": \"홍길동\",\n  \"mobile\": \"010-1234-5678\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "비밀번호 재설정 메일 요청",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/password/forgot",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "password",
+                "forgot"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "비밀번호 재설정",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/password/reset",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "password",
+                "reset"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"메일 링크의 token\",\n  \"newPassword\": \"NewPass1234!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "description": "Google 로그인은 브라우저 리다이렉트 흐름이라 컬렉션에서 제외 (/oauth2/authorization/google)"
+    },
+    {
+      "name": "02 코드",
+      "item": [
+        {
+          "name": "항공사 목록",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/code/airlines",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "code",
+                "airlines"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "공항 목록",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/code/airports",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "code",
+                "airports"
+              ],
+              "query": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 항공편 · 좌석",
+      "item": [
+        {
+          "name": "항공편 검색",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/flight/search?departureAirport=GMP&arrivalAirport=CJU&flightDate=2026-11-20&passengers=1&airlineCode=KE&minPrice=0&maxPrice=200000&page=0&size=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "flight",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "departureAirport",
+                  "value": "GMP"
+                },
+                {
+                  "key": "arrivalAirport",
+                  "value": "CJU"
+                },
+                {
+                  "key": "flightDate",
+                  "value": "2026-11-20"
+                },
+                {
+                  "key": "passengers",
+                  "value": "1"
+                },
+                {
+                  "key": "airlineCode",
+                  "value": "KE",
+                  "disabled": true
+                },
+                {
+                  "key": "minPrice",
+                  "value": "0",
+                  "disabled": true
+                },
+                {
+                  "key": "maxPrice",
+                  "value": "200000",
+                  "disabled": true
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "운항(active) 항공편만 조회"
+          }
+        },
+        {
+          "name": "항공편 상세",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/flight/{{flightId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "flight",
+                "{{flightId}}"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "재고 상세",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/flight/inventory/{{inventoryId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "flight",
+                "inventory",
+                "{{inventoryId}}"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "좌석 배치",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/flight/inventory/{{inventoryId}}/seats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "flight",
+                "inventory",
+                "{{inventoryId}}",
+                "seats"
+              ],
+              "query": []
+            },
+            "description": "확정 좌석(DB) + 선점 좌석(Redis)"
+          }
+        },
+        {
+          "name": "좌석 선점",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/flight/inventory/{{inventoryId}}/seats/{{seatNumber}}/hold",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "flight",
+                "inventory",
+                "{{inventoryId}}",
+                "seats",
+                "{{seatNumber}}",
+                "hold"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clientId\": \"{{clientId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "로그인 필요. Redis TTL 300초, 성공 시 /topic/seats/{inventoryId} 로 HELD 전파"
+          }
+        },
+        {
+          "name": "선점 연장",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/flight/inventory/{{inventoryId}}/seats/hold/extend",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "flight",
+                "inventory",
+                "{{inventoryId}}",
+                "seats",
+                "hold",
+                "extend"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "선점 해제",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/flight/inventory/{{inventoryId}}/seats/{{seatNumber}}/hold",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "flight",
+                "inventory",
+                "{{inventoryId}}",
+                "seats",
+                "{{seatNumber}}",
+                "hold"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clientId\": \"{{clientId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 예약 · 결제",
+      "item": [
+        {
+          "name": "예약 세션 생성",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const r = pm.response.json();",
+                  "if (r && r.result) { pm.collectionVariables.set('sessionId', r.result.sessionId); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/booking/session",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "booking",
+                "session"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"inventoryId\": {{inventoryId}},\n  \"passengerCount\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "금액은 서버가 계산해 Redis 세션에 저장"
+          }
+        },
+        {
+          "name": "예약 세션 조회",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/booking/session/{{sessionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "booking",
+                "session",
+                "{{sessionId}}"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "결제 준비",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const r = pm.response.json();",
+                  "if (r && r.result) {",
+                  "  pm.collectionVariables.set('orderId', r.result.orderId);",
+                  "  pm.collectionVariables.set('amount', r.result.amount);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/payment/prepare",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "payment",
+                "prepare"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sessionId\": \"{{sessionId}}\",\n  \"passengers\": [\n    {\n      \"name\": \"홍길동\",\n      \"nameEn\": \"HONG GILDONG\",\n      \"email\": \"test@example.com\",\n      \"mobile\": \"010-1234-5678\",\n      \"birthDate\": \"1990-01-01\",\n      \"gender\": \"male\",\n      \"seatNumber\": \"{{seatNumber}}\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "좌석을 먼저 선점해야 함. 응답의 orderId / amount 로 Toss 결제창 호출"
+          }
+        },
+        {
+          "name": "결제 승인",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/payment/confirm",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "payment",
+                "confirm"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sessionId\": \"{{sessionId}}\",\n  \"paymentKey\": \"Toss successUrl의 paymentKey\",\n  \"orderId\": \"{{orderId}}\",\n  \"amount\": {{amount}},\n  \"clientId\": \"{{clientId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "paymentKey는 Toss 결제창 완료 후 발급. 금액이 세션과 다르면 Toss 승인을 호출하지 않음"
+          }
+        },
+        {
+          "name": "예약 세션 삭제",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/booking/session/{{sessionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "booking",
+                "session",
+                "{{sessionId}}"
+              ],
+              "query": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 마이페이지",
+      "item": [
+        {
+          "name": "내 예약 목록",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/booking/my?filter=",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "booking",
+                "my"
+              ],
+              "query": [
+                {
+                  "key": "filter",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "예약 취소",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/booking/{{bookingId}}/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "booking",
+                "{{bookingId}}",
+                "cancel"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cancelReason\": \"일정 변경\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "출발 전날까지, 항공권 금액만 환불"
+          }
+        },
+        {
+          "name": "좌석 변경",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/booking/{{bookingId}}/seats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "booking",
+                "{{bookingId}}",
+                "seats"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clientId\": \"{{clientId}}\",\n  \"changes\": [\n    {\n      \"passengerId\": 1,\n      \"seatNumber\": \"13A\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "내 정보",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/member/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "member",
+                "me"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "내 정보 수정",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/member/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "member",
+                "me"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"memberName\": \"홍길동\",\n  \"mobile\": \"010-1234-5678\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "비밀번호 변경",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/member/me/password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "member",
+                "me",
+                "password"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"Test1234!\",\n  \"newPassword\": \"NewPass1234!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 공지사항",
+      "item": [
+        {
+          "name": "공지 목록",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/notice?page=0&size=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "notice"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "공지 상세",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/notice/{{noticeId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "notice",
+                "{{noticeId}}"
+              ],
+              "query": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 관리자 · 통계",
+      "item": [
+        {
+          "name": "대시보드",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/stats/dashboard",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "stats",
+                "dashboard"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "기간 통계",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/stats?startDate=2026-10-01&endDate=2026-10-31",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "stats"
+              ],
+              "query": [
+                {
+                  "key": "startDate",
+                  "value": "2026-10-01"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2026-10-31"
+                }
+              ]
+            },
+            "description": "최대 1년"
+          }
+        }
+      ]
+    },
+    {
+      "name": "11 관리자 · 항공편",
+      "item": [
+        {
+          "name": "항공편 목록",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/flight?flightNumber=&airlineCode=&status=&page=0&size=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "flight"
+              ],
+              "query": [
+                {
+                  "key": "flightNumber",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "airlineCode",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "항공편 상세",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/flight/{{flightId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "flight",
+                "{{flightId}}"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "항공편 등록",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/flight",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "flight"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"flightNumber\": \"KE1201\",\n  \"airlineCode\": \"KE\",\n  \"departureAirport\": \"GMP\",\n  \"arrivalAirport\": \"CJU\",\n  \"departureTime\": \"08:00:00\",\n  \"arrivalTime\": \"09:10:00\",\n  \"durationMinutes\": 70,\n  \"totalSeats\": 180,\n  \"basePrice\": 85000,\n  \"status\": \"active\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "항공편 수정",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/flight/{{flightId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "flight",
+                "{{flightId}}"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"airlineCode\": \"KE\",\n  \"departureAirport\": \"GMP\",\n  \"arrivalAirport\": \"CJU\",\n  \"departureTime\": \"08:00:00\",\n  \"arrivalTime\": \"09:10:00\",\n  \"durationMinutes\": 70,\n  \"totalSeats\": 180,\n  \"basePrice\": 90000,\n  \"status\": \"active\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "운항중지",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/flight/{{flightId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "flight",
+                "{{flightId}}"
+              ],
+              "query": []
+            },
+            "description": "삭제가 아니라 inactive 처리"
+          }
+        },
+        {
+          "name": "재고 일괄 생성",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/flight/{{flightId}}/inventory/generate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "flight",
+                "{{flightId}}",
+                "inventory",
+                "generate"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"startDate\": \"2026-11-01\",\n  \"endDate\": \"2026-11-30\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "최대 90일, 이미 있는 날짜는 건너뜀"
+          }
+        },
+        {
+          "name": "재고 조정",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/flight/inventory/{{inventoryId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "flight",
+                "inventory",
+                "{{inventoryId}}"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"availableSeats\": 150\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "미래 날짜만, 0 ≤ seats ≤ 총좌석 − 예약 좌석"
+          }
+        }
+      ]
+    },
+    {
+      "name": "12 관리자 · 예약",
+      "item": [
+        {
+          "name": "예약 목록",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/booking?bookingNumber=&bookerName=&dateType=&startDate=&endDate=&status=&page=0&size=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "booking"
+              ],
+              "query": [
+                {
+                  "key": "bookingNumber",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "bookerName",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "dateType",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "startDate",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "endDate",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "예약 상세",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/booking/{{bookingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "booking",
+                "{{bookingId}}"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "관리자 취소",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/booking/{{bookingId}}/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "booking",
+                "{{bookingId}}",
+                "cancel"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refundType\": \"FULL\",\n  \"cancelReason\": \"항공사 사정\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "refundType: FULL(전액) / FARE(항공권 금액만)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "13 관리자 · 회원",
+      "item": [
+        {
+          "name": "회원 목록",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/member?loginId=&memberName=&status=&page=0&size=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "member"
+              ],
+              "query": [
+                {
+                  "key": "loginId",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "memberName",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "회원 상세",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/member/{{memberId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "member",
+                "{{memberId}}"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "회원 상태 변경",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/member/{{memberId}}/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "member",
+                "{{memberId}}",
+                "status"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"suspended\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "active / suspended"
+          }
+        }
+      ]
+    },
+    {
+      "name": "14 관리자 · 공지",
+      "item": [
+        {
+          "name": "공지 목록",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/notice?title=&status=&page=0&size=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "notice"
+              ],
+              "query": [
+                {
+                  "key": "title",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "공지 상세",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/notice/{{noticeId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "notice",
+                "{{noticeId}}"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "공지 등록",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/notice",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "notice"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"공지 제목\",\n  \"content\": \"<p>내용</p>\",\n  \"isImportant\": false,\n  \"status\": \"published\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "공지 수정",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/notice/{{noticeId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "notice",
+                "{{noticeId}}"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"공지 제목\",\n  \"content\": \"<p>내용</p>\",\n  \"isImportant\": true,\n  \"status\": \"published\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "공지 삭제",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/notice/{{noticeId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "notice",
+                "{{noticeId}}"
+              ],
+              "query": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "15 관리자 · 설정 · 스케줄러",
+      "item": [
+        {
+          "name": "설정 목록",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/setting?settingKey=",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "setting"
+              ],
+              "query": [
+                {
+                  "key": "settingKey",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "설정 상세",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/setting/{{settingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "setting",
+                "{{settingId}}"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "설정 등록",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/setting",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "setting"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"settingKey\": \"SAMPLE_KEY\",\n  \"settingValue\": \"value\",\n  \"description\": \"설명\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "설정 수정",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/setting/{{settingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "setting",
+                "{{settingId}}"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"settingValue\": \"value\",\n  \"description\": \"설명\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "설정 삭제",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/setting/{{settingId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "setting",
+                "{{settingId}}"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "스케줄러 로그 목록",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/scheduler-log?jobName=SeatHoldExpireJob&status=&page=0&size=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "scheduler-log"
+              ],
+              "query": [
+                {
+                  "key": "jobName",
+                  "value": "SeatHoldExpireJob",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "스케줄러 로그 상세",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/scheduler-log/{{schedulerLogId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "scheduler-log",
+                "{{schedulerLogId}}"
+              ],
+              "query": []
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
