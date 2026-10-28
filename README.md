@@ -121,6 +121,17 @@ cd frontend && npm install && npm run build && cd ..
 | `AdminStatsServiceTest` | 대시보드 증감 계산 |
 | `SeatConcurrencyIntegrationTest` | 실제 MariaDB에서 좌석·재고 동시성 |
 
+## 배포
+
+| 항목 | 구성 |
+|---|---|
+| 서버 | Rocky Linux 9.8, 1GB |
+| 구성 | nginx(HTTPS, Let's Encrypt) → Spring Boot jar(systemd, OpenJDK 21) |
+| WebSocket | nginx `/ws`에 Upgrade 헤더 |
+| HTTPS 인식 | Spring `forward-headers-strategy: framework` |
+| DB · Redis | 외부 서버 MariaDB · Redis |
+| 비밀값 | 환경변수 파일(권한 600) |
+
 ## 알려진 한계와 개선 방향
 
 | 한계 | 개선 방향 |
