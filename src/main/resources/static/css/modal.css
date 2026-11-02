@@ -49,6 +49,7 @@ body.pm-modal-open { overflow: hidden; }
     width: 100%;
     max-width: 500px;
     max-height: calc(100vh - 32px);
+    max-height: calc(100dvh - 32px);
     display: flex;
     flex-direction: column;
     background: #fff;
@@ -224,6 +225,17 @@ body.pm-modal-open { overflow: hidden; }
 }
 .pm-loading__text { margin: 16px 0 0; }
 @keyframes pm-spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 560px) {
+    .pm-modal { padding: 8px; }
+    .pm-modal__content {
+        max-height: calc(100vh - 16px);
+        max-height: calc(100dvh - 16px);
+    }
+    .pm-modal__header { padding: 12px 16px; }
+    .pm-modal__body { padding: 16px; }
+    .pm-modal__footer { padding: 10px 16px; }
+}
 
 @media (prefers-reduced-motion: reduce) {
     .pm-modal, .pm-modal__content, .pm-loading { transition: none; }

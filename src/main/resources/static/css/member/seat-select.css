@@ -73,8 +73,13 @@
     .pm-split { flex-direction: column; }
     .pm-split__side {
         width: 100%;
-        max-height: 180px;
+        max-height: 25vh;
+        max-height: 25dvh;
+        padding: 12px;
         border-right: 0;
         border-bottom: 1px solid var(--pm-border);
     }
+    .pm-split__main { padding: 12px; }
+    .seat-passenger-list { gap: 6px; }
+    .seat-passenger { padding: 6px 10px; }
 }
